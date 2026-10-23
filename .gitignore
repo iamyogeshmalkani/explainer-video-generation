@@ -1,0 +1,9 @@
+node_modules/
+.DS_Store
+.env
+# raw downloads and reference material taken from other people's videos
+downloads/
+reference/
+# rendered videos and per-project build output (regenerate with explainroo render)
+**/out/
+**/build/

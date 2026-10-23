@@ -1,0 +1,14 @@
+{
+  "title": "Where the name America comes from",
+  "theme": "look.json",
+  "size": "vertical",
+  "voice": "af_heart",
+  "pace": 1.0,
+  "music": { "style": "calm", "volume": 0.12 },
+  "sfx": "minimal",
+  "captions": false,
+  "camera": "still",
+  "motionBlur": true,
+  "cover": 2.5,
+  "watermark": false
+}

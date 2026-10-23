@@ -1,0 +1,10 @@
+node_modules/
+.DS_Store
+*.log
+# video projects: scripts, scenes and assets are tracked; renders (out/) and build/ below are not
+# build output inside any project
+build/
+out/
+.cache/
+.scratch/
+.env

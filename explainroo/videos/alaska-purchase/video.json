@@ -1,0 +1,17 @@
+{
+  "title": "The Alaska Purchase",
+  "theme": "look.json",
+  "size": "vertical",
+  "voice": "am_michael",
+  "pace": 1.05,
+  "music": {
+    "style": "calm",
+    "volume": 0.12
+  },
+  "sfx": "minimal",
+  "captions": false,
+  "camera": "still",
+  "motionBlur": true,
+  "cover": 3,
+  "watermark": false
+}

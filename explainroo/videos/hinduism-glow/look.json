@@ -1,0 +1,21 @@
+{
+  "extends": "midnight",
+  "name": "diwali",
+  "bg": "#170d2b",
+  "ink": "#fff1d6",
+  "muted": "#c4b0da",
+  "surface": "#261542",
+  "accent": "orange",
+  "colors": {
+    "orange": "#ffa62b", "yellow": "#ffd166", "red": "#ff6b4a", "pink": "#ff5d9e",
+    "teal": "#2ec4b6", "purple": "#b388ff", "blue": "#6ea8ff", "green": "#5ad6a0"
+  },
+  "fonts": {
+    "display": { "family": "Instrument Serif", "weight": 400 },
+    "body": { "family": "Plus Jakarta Sans", "weight": 600 }
+  },
+  "background": "glow",
+  "music": "warm",
+  "transition": "fade",
+  "caption": { "bg": "rgba(23,13,43,0.86)", "fg": "#fff1d6", "active": "#ffa62b" }
+}

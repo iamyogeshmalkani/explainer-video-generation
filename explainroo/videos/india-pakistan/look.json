@@ -1,0 +1,17 @@
+{
+  "extends": "editorial",
+  "name": "atlas",
+  "bg": "#efe6d2",
+  "ink": "#2a2018",
+  "muted": "#6f6350",
+  "surface": "#f8f1e1",
+  "accent": "red",
+  "colors": {
+    "red": "#a8402b", "orange": "#b86f26", "yellow": "#b88a24", "green": "#476f43",
+    "teal": "#2a766f", "blue": "#2d5876", "purple": "#664a76", "pink": "#a04f68"
+  },
+  "background": "paper",
+  "music": "calm",
+  "transition": "fade",
+  "caption": { "bg": "rgba(42,32,24,0.88)", "fg": "#f8f1e1", "active": "#e6b36a" }
+}

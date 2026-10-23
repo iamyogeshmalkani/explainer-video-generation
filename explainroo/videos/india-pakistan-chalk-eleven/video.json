@@ -1,0 +1,14 @@
+{
+  "title": "History of India and Pakistan",
+  "theme": "chalk",
+  "size": "9:16",
+  "voice": {
+    "provider": "elevenlabs",
+    "id": "akQnlreIUIoJxrTrosJj",
+    "model": "eleven_multilingual_v2"
+  },
+  "music": true,
+  "captions": true,
+  "pace": 1.05,
+  "watermark": false
+}

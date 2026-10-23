@@ -1,0 +1,16 @@
+{
+  "extends": "midnight",
+  "name": "history-map",
+  "bg": "#06121c",
+  "ink": "#ffffff",
+  "muted": "#a9bccb",
+  "accent": "orange",
+  "colors": { "orange": "#e3b341", "red": "#d7282f", "blue": "#2b6cb0" },
+  "fonts": {
+    "display": { "family": "Instrument Serif", "weight": 400 },
+    "body": { "family": "Plus Jakarta Sans", "weight": 600 }
+  },
+  "background": "plain",
+  "music": "calm",
+  "transition": "cut"
+}

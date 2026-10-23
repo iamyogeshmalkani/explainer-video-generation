@@ -1,0 +1,10 @@
+{
+  "title": "Hinduism in one minute",
+  "theme": "look.json",
+  "size": "vertical",
+  "voice": "af_heart",
+  "music": true,
+  "captions": "auto",
+  "pace": 1.05,
+  "watermark": false
+}

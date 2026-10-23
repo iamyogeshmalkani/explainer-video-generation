@@ -1,0 +1,6 @@
+# The Alaska Purchase
+
+> Facts: Wikipedia "Alaska Purchase" (price $7.2 million, about 2 cents an acre, 586,412 sq mi, signed March 30 1867, Senate 37 to 2, nicknames, Klondike 1896); Prudhoe Bay oil discovery 1968 (Wikipedia, Petroleum News). Statehood 1959 (49th state). The idea that the purchase was widely mocked is partly a myth, so the script says only "some critics".
+
+## story {transition=cut hold=1.5}
+[#size] In 1867, the United States bought a territory more than twice the size of Texas, for about two cents an acre. [#russia] Until then, Alaska belonged to Russia. [#defend] Russia could not easily defend it against British forces in Canada, and it needed money after losing the Crimean War. [#deal] So Russian diplomat {Eduard de Stoeckl|Edward duh Stekel} made a deal with America's Secretary of State, William Seward. [#price] They signed the treaty on {March 30|March thirtieth}, for {$7.2 million|seven point two million dollars}. [#senate] The Senate approved it, 37 to 2. [#folly] Some critics called it Seward's Folly. [#gold] But when gold rushes began in the 1890s, Alaska looked far more valuable, [#oil] and in 1968, oil was discovered at {Prudhoe Bay|Prud oh Bay}. [#state] Alaska became the 49th state in 1959. [#largest] Today it is the largest state in the country, and it all began with [#cents] a two-cent-an-acre deal.

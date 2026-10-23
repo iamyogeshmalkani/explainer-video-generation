@@ -1,0 +1,21 @@
+{
+  "extends": "midnight",
+  "name": "pauranik",
+  "bg": "#2a0c12",
+  "ink": "#fbeccb",
+  "muted": "#d9b98e",
+  "surface": "#3f151e",
+  "accent": "orange",
+  "colors": {
+    "orange": "#f5a623", "yellow": "#ffd166", "red": "#e8503f", "pink": "#ff7aa2",
+    "teal": "#2fb5a9", "blue": "#6f9bff", "purple": "#b794ff", "green": "#6fd08c"
+  },
+  "fonts": {
+    "display": { "family": "Instrument Serif", "weight": 700 },
+    "body": { "family": "Plus Jakarta Sans", "weight": 600 }
+  },
+  "background": "glow",
+  "music": "calm",
+  "transition": "fade",
+  "caption": { "bg": "rgba(42,12,18,0.88)", "fg": "#fbeccb", "active": "#ffd166" }
+}
