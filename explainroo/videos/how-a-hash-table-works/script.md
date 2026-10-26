@@ -1,0 +1,6 @@
+# How a hash table works
+
+> Facts used: a hash table stores key-value pairs; a hash function turns the key into a number, and that number (reduced to the table size, for example with modulo) picks a slot in an array; a lookup hashes the same key again and goes straight to that slot; on average insert, lookup and delete take constant time, no matter how many items the table holds (worst case is linear when keys all collide); two keys can land in the same slot, which is called a collision; a common fix is chaining, where each slot holds a list of the entries that landed there. The name and phone number are made-up example data (555 numbers are reserved for fiction).
+
+## story {transition=cut hold=1.5}
+[#s1] A hash table stores keys and values. [#s2] Say the key is a name, [#phone] and the value is a phone number. [#s3] A hash function turns the key [#number] into a number. [#s4] That number picks a slot in an array. [#s5] To look it up, hash the same key, [#s6] and it points to the same slot. [#s7] On average, that takes the same time [#ten] with ten items [#million] or ten million. [#s8] Sometimes two keys land in the same slot, [#s9] a collision. [#s10] A common fix is a list in each slot. [#s11] Key, [#h] hash, [#sl] slot, [#v] value. [#end] That is how a hash table finds things fast.

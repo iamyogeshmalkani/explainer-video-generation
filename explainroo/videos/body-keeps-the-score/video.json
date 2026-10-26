@@ -1,0 +1,22 @@
+{
+  "title": "The Body Keeps the Score: book summary",
+  "theme": "look.json",
+  "size": "9:16",
+  "voice": "am_fenrir",
+  "pace": 1.05,
+  "music": {
+    "style": "calm",
+    "volume": 0.45
+  },
+  "sfx": "minimal",
+  "captions": false,
+  "camera": "still",
+  "motionBlur": false,
+  "cover": 1,
+  "watermark": false,
+  "images": {
+    "model": "pollinations",
+    "style": "soft muted watercolor and ink illustration, calm pastel palette of blues, soft oranges and greys, gentle paper texture, quiet and thoughtful mood, vertical 9:16, no text, no letters, no signs, no logos"
+  },
+  "language": "en"
+}

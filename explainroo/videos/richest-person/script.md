@@ -1,0 +1,6 @@
+# The richest person in history
+
+> Facts: Mansa Musa ruled the Mali Empire in West Africa in the early 1300s (about 1312 to 1337). Mali had rich gold mines and traded gold and salt. In 1324 he made a pilgrimage to Mecca with a caravan of thousands of people and camels. In Cairo he gave away so much gold that its price fell for years. He built mosques, and Timbuktu grew into a center of learning. His wealth cannot be counted exactly; many historians call him the richest person ever. Pictures are illustrations, not likenesses.
+
+## story {transition=cut hold=1.2}
+[#s1] Richest person ever? [#s2] Meet {Mansa Musa|Mahn sah Moo sah}, king of the {Mali|Mah lee} Empire in West Africa. [#year] He ruled in the early 1300s. [#s3] His land held rich gold mines, [#salt] and his people traded gold and salt. [#s4] In {1324|thirteen twenty four}, he set out on a pilgrimage to Mecca, [#camels] with a caravan of thousands of people and camels. [#s5] In Cairo, he gave away so much gold, [#fell] that its price fell for years. [#s6] Back home, he built grand mosques. [#s7] And Timbuktu grew into a famous center of learning. [#s8] No one can count his wealth, but many historians call him the richest person ever.

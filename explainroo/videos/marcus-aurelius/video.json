@@ -1,0 +1,21 @@
+{
+  "title": "Marcus Aurelius: the work of a human being",
+  "theme": "look.json",
+  "size": "9:16",
+  "voice": "am_fenrir",
+  "pace": 1,
+  "music": { "style": "cinematic", "key": "E", "volume": 0.85 },
+  "sfx": "minimal",
+  "captions": false,
+  "camera": "still",
+  "motionBlur": false,
+  "cover": 2.5,
+  "watermark": false,
+  "images": {
+    "model": "pollinations",
+    "style": "classical oil painting in the style of 19th century academic realism, dramatic chiaroscuro lighting, rich warm earth tones with deep reds, visible brush strokes, museum quality, horizontal 3:2, no text, no letters, no logos"
+  },
+  "fonts": [
+    { "family": "Playfair Display", "src": "assets/fonts/PlayfairDisplay-latin.woff2", "weight": "400 900" }
+  ]
+}

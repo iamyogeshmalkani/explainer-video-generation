@@ -1,0 +1,21 @@
+{
+  "title": "The pump that started the age of steam",
+  "theme": "look.json",
+  "size": "9:16",
+  "voice": "am_fenrir",
+  "pace": 1.05,
+  "music": {
+    "style": "calm",
+    "volume": 0.5
+  },
+  "sfx": "minimal",
+  "captions": false,
+  "camera": "still",
+  "motionBlur": false,
+  "cover": 1,
+  "watermark": false,
+  "images": {
+    "model": "local",
+    "style": "handcrafted claymation miniature diorama, warm cinematic lighting, shallow depth of field, rich textures, vertical 9:16, no text, no logos"
+  }
+}

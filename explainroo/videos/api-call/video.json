@@ -1,0 +1,17 @@
+{
+  "title": "An API call, step by step",
+  "theme": "look.json",
+  "size": "9:16",
+  "voice": "am_fenrir",
+  "pace": 1,
+  "music": { "style": "tech", "volume": 0.45 },
+  "sfx": true,
+  "captions": false,
+  "camera": "still",
+  "motionBlur": false,
+  "cover": 1,
+  "watermark": false,
+  "fonts": [
+    { "family": "Outfit", "src": "assets/fonts/Outfit-800-latin.woff2", "weight": 800 }
+  ]
+}

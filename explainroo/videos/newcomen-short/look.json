@@ -1,0 +1,16 @@
+{
+  "extends": "midnight",
+  "name": "story-shots",
+  "bg": "#0b0907",
+  "ink": "#ffffff",
+  "muted": "#c9b99a",
+  "accent": "yellow",
+  "colors": { "yellow": "#f6e04a", "blue": "#2f8cff", "red": "#ff5a4f" },
+  "fonts": {
+    "display": { "family": "Instrument Serif", "weight": 400 },
+    "body": { "family": "Plus Jakarta Sans", "weight": 600 }
+  },
+  "background": "plain",
+  "music": "calm",
+  "transition": "cut"
+}

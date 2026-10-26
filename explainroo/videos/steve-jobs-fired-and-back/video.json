@@ -1,0 +1,18 @@
+{
+  "title": "Steve Jobs: fired from the company he started",
+  "theme": "look.json",
+  "size": "9:16",
+  "voice": "bm_george",
+  "pace": 1.1,
+  "music": { "style": "inspiring", "volume": 0.4 },
+  "sfx": false,
+  "captions": false,
+  "camera": "still",
+  "motionBlur": false,
+  "cover": 1.2,
+  "loudness": -14,
+  "watermark": false,
+  "fonts": [
+    { "family": "Playfair Display", "src": "assets/fonts/PlayfairDisplay-latin.woff2", "weight": "400 900" }
+  ]
+}

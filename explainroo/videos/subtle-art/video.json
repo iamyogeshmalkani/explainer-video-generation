@@ -1,0 +1,22 @@
+{
+  "title": "The Subtle Art of Not Giving a F*ck: book summary",
+  "theme": "look.json",
+  "size": "9:16",
+  "voice": "am_fenrir",
+  "pace": 1.05,
+  "music": {
+    "style": "calm",
+    "volume": 0.45
+  },
+  "sfx": "minimal",
+  "captions": false,
+  "camera": "still",
+  "motionBlur": false,
+  "cover": 1,
+  "watermark": false,
+  "images": {
+    "model": "pollinations",
+    "style": "bold flat editorial illustration with thick dark outlines, warm orange and charcoal palette on a cream background, playful and slightly sarcastic mood, vertical 9:16, no text, no letters, no signs, no logos"
+  },
+  "language": "en"
+}

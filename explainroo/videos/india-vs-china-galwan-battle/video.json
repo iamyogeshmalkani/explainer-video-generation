@@ -1,0 +1,19 @@
+{
+  "title": "Galwan 2020: The battle fought without a single bullet",
+  "theme": "look.json",
+  "size": "9:16",
+  "voice": "am_michael",
+  "pace": 1.2,
+  "music": { "style": "cinematic", "key": "D", "volume": 0.85 },
+  "sfx": "minimal",
+  "captions": false,
+  "camera": "still",
+  "motionBlur": false,
+  "cover": 1.4,
+  "loudness": -12,
+  "watermark": false,
+  "images": {
+    "model": "pollinations",
+    "style": "dark dramatic oil painting, thick visible brushstrokes, strong chiaroscuro, cold blue moonlight and faint orange flare light against a deep blue-black night, snow-dusted Himalayan mountains, very dark moody atmosphere, cinematic, highly detailed, vertical 9:16, no text, no letters, no signs, no logos, no flags"
+  }
+}

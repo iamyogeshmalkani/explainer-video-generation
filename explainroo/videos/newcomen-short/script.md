@@ -1,0 +1,6 @@
+# The pump that started the age of steam (short test)
+
+> Facts as in ../newcomen-engine/script.md (Wikipedia "Newcomen atmospheric engine", "Thomas Newcomen" and ERIH). A shorter cut for testing: Newcomen was an ironmonger; steam condensed by a cold water spray leaves a partial vacuum and air pressure pushes the piston; an engine pumped at a coal works near Dudley in 1712; it burned a lot of coal, which was tolerable at a coal mine. The coal-mine line is the common explanation, from general knowledge.
+
+## story {transition=cut hold=1.5}
+[#s1] Before the Industrial Revolution, there was a flooded mine. [#s2] The deeper miners dug for coal, the more water seeped in. [#s3] Men hauled it out in buckets, and horses turned the pumps. [#s4] Then an ironmonger named {Thomas Newcomen|Thomas New kuh mun} had an idea that used steam. [#s5] Fill a cylinder with steam, then spray in cold water. [#s6] The steam turns back into water and leaves a vacuum. [#s7] The weight of the air pushes the piston down, and the piston drives the pump. [#s8] In 1712, an engine like this was pumping at a coal works near Dudley. [#s9] It burned a lot of coal, but at a coal mine, the fuel was right there. [#s10] A pump for flooded mines had started the age of steam.
