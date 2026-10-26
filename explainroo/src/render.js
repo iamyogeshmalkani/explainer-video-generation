@@ -26,6 +26,8 @@ export async function render(project, opts = {}) {
   const format = renderFormat(opts);
   const t0 = Date.now();
   const { timeline } = await prepare(project, { log });
+  const tPrepared = Date.now();
+  log(`prepared in ${((tPrepared - t0) / 1000).toFixed(1)}s`);
   const draft = !!opts.draft;
   const transparent = !!opts.transparent;
   const segmentFormat = format === 'gif' ? 'mp4' : format;
@@ -54,15 +56,25 @@ export async function render(project, opts = {}) {
   const mix = path.join(project.paths.build, 'mix.wav');
   const mixNorm = path.join(project.paths.build, 'mix-norm.wav');
   const encoders = [];
+  const coverTemp = path.join(project.paths.build, 'cover.jpg');
+  // The cover is a full-size still. When the frames are full-size too, it is taken
+  // on a page that is already open, which saves starting a second browser.
+  const coverInPass = !!coverTime && scale === 1 && !transparent;
+  let coverDone = false;
   try {
-    await withEngine(project, timeline, { scale, pages: workers, transparent, log }, async (pages) => {
+    // The soundtrack gets a page of its own, so it is mixed while the frames are drawn.
+    const withSound = format !== 'gif';
+    await withEngine(project, timeline, { scale, pages: workers + (withSound ? 1 : 0), transparent, log }, async (pages) => {
       const list = Array.isArray(pages) ? pages : [pages];
+      const soundPage = withSound ? list.pop() : null;
+      log(`engine ready in ${((Date.now() - tPrepared) / 1000).toFixed(1)}s`);
       let norm;
-      if (format !== 'gif') {
+      if (withSound) {
         const ta = Date.now();
-        const sound = await list[0].evaluate((p) => window.explainroo.soundtrack(p), 'build/mix.wav');
-        log(`soundtrack: ${sound.cues} sound cues, mixed in ${((Date.now() - ta) / 1000).toFixed(1)}s`);
-        norm = normalizeLoudness(mix, mixNorm, project.config.loudness);
+        norm = soundPage.evaluate((p) => window.explainroo.soundtrack(p), 'build/mix.wav').then((sound) => {
+          log(`soundtrack: ${sound.cues} sound cues, mixed in ${((Date.now() - ta) / 1000).toFixed(1)}s`);
+          return normalizeLoudness(mix, mixNorm, project.config.loudness);
+        });
         norm.catch(() => {});
       }
 
@@ -92,6 +104,10 @@ export async function render(project, opts = {}) {
         await enc.close();
       }));
       log(`frames done in ${((Date.now() - tf) / 1000).toFixed(1)}s`);
+      if (coverInPass) {
+        await list[0].evaluate((T) => window.explainroo.stills([{ T, path: 'build/cover.jpg' }], { type: 'image/jpeg', quality: 0.9, captions: false }), coverTime.T);
+        coverDone = true;
+      }
       await norm;
     });
   } catch (e) {
@@ -143,12 +159,11 @@ export async function render(project, opts = {}) {
     fs.writeFileSync(files.chapters, toChaptersText(chapters));
   } else fs.rmSync(`${base}.chapters.txt`, { force: true });
   if (coverTime) {
-    const temp = path.join(project.paths.build, 'cover.jpg');
     try {
-      await withEngine(project, timeline, { scale: 1, log }, (page) => page.evaluate((T) => window.explainroo.stills([{ T, path: 'build/cover.jpg' }], { type: 'image/jpeg', quality: 0.9, captions: false }), coverTime.T));
+      if (!coverDone) await withEngine(project, timeline, { scale: 1, log }, (page) => page.evaluate((T) => window.explainroo.stills([{ T, path: 'build/cover.jpg' }], { type: 'image/jpeg', quality: 0.9, captions: false }), coverTime.T));
       files.cover = `${base}.cover.jpg`;
-      fs.copyFileSync(temp, files.cover);
-    } finally { fs.rmSync(temp, { force: true }); }
+      fs.copyFileSync(coverTemp, files.cover);
+    } finally { fs.rmSync(coverTemp, { force: true }); }
   } else fs.rmSync(`${base}.cover.jpg`, { force: true });
   const secs = (Date.now() - t0) / 1000;
   log(`wrote ${path.relative(process.cwd(), out) || out} in ${secs.toFixed(1)}s`);
