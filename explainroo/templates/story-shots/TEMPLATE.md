@@ -42,7 +42,10 @@ roughly 2.6 words a second, mastered at -10 LUFS with music under the voice).
    and a file name. Set `HOOK` and any `BOARDS`. Keep `STYLE` the same for all.
 5. **Voice and check.** `voice`, then `check`. Fix every error. Listen to names
    before respelling them.
-6. **Pictures.** Run `scripts/shot-images.mjs ... --dry-run`, tell the user the
+6. **Pictures.** If the local model is installed (`setup-local-images.sh`), run
+   `scripts/shot-images.mjs <project> --local`: free, about 2 minutes a picture, and
+   nothing leaves the computer. Describe each recurring person with the same words in
+   every prompt (the local model takes no `--ref`). Otherwise run `scripts/shot-images.mjs ... --dry-run`, tell the user the
    number of pictures and the cost, and make them only after the user agrees
    (needs `--yes` and an OpenRouter key). Open every picture; remake wrong ones
    (wrong hands, wrong period details, invented text). Or use the user's own

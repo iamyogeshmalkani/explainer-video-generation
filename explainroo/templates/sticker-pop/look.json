@@ -1,0 +1,15 @@
+{
+  "extends": "clean",
+  "name": "sticker-pop",
+  "bg": "#fbc531",
+  "ink": "#161616",
+  "muted": "#5a4a1a",
+  "accent": "red",
+  "fonts": {
+    "display": { "family": "Lilita One", "weight": 400 },
+    "body": { "family": "Outfit", "weight": 800 }
+  },
+  "background": "plain",
+  "music": "playful",
+  "transition": "cut"
+}

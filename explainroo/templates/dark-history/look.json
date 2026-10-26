@@ -1,0 +1,16 @@
+{
+  "extends": "midnight",
+  "name": "dark-history",
+  "bg": "#070605",
+  "ink": "#ffffff",
+  "muted": "#c9b99a",
+  "accent": "yellow",
+  "colors": { "yellow": "#fff200" },
+  "fonts": {
+    "display": { "family": "Plus Jakarta Sans", "weight": 800 },
+    "body": { "family": "Plus Jakarta Sans", "weight": 800 }
+  },
+  "background": "plain",
+  "music": "cinematic",
+  "transition": "cut"
+}

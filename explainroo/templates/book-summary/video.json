@@ -1,0 +1,22 @@
+{
+  "title": "गोदान: किताब का सार",
+  "theme": "look.json",
+  "size": "9:16",
+  "voice": "hm_omega",
+  "pace": 1.05,
+  "music": {
+    "style": "calm",
+    "volume": 0.45
+  },
+  "sfx": "minimal",
+  "captions": false,
+  "camera": "still",
+  "motionBlur": false,
+  "cover": 1,
+  "watermark": false,
+  "images": {
+    "model": "pollinations",
+    "style": "painterly watercolor and ink illustration, muted earthy tones, warm soft light, textured paper, rural north India in the 1930s, vertical 9:16, no text, no letters, no signs, no logos"
+  },
+  "language": "hi"
+}

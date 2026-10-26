@@ -1,0 +1,22 @@
+{
+  "title": "Alfred Nobel: the man behind the prize",
+  "theme": "look.json",
+  "size": "9:16",
+  "voice": "am_fenrir",
+  "pace": 1,
+  "music": { "style": "playful", "volume": 0.3 },
+  "sfx": true,
+  "captions": false,
+  "camera": "still",
+  "motionBlur": false,
+  "cover": "story@1.4",
+  "watermark": false,
+  "images": {
+    "model": "pollinations",
+    "style": "flat vector sticker illustration, bold clean dark outlines, bright saturated colors, simple shading, isolated on a plain pure white background, centered, whole object visible, no shadow, no text, no letters"
+  },
+  "fonts": [
+    { "family": "Lilita One", "src": "assets/fonts/LilitaOne-latin.woff2", "weight": 400 },
+    { "family": "Outfit", "src": "assets/fonts/Outfit-800-latin.woff2", "weight": 800 }
+  ]
+}

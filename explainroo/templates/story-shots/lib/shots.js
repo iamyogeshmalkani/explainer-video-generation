@@ -150,8 +150,8 @@ export function hook(s, text, o = {}) {
   });
 }
 
-// A board with two numbers side by side: the first struck through, the second lit.
-// o: { title, a: { label, value }, b: { label, value }, at, out, y }
+// A board with two numbers side by side: the first struck through (set strike: false when both are true), the second lit.
+// o: { title, a: { label, value }, b: { label, value }, at, out, y, strike }
 export function compare(s, o) {
   s.draw({ at: o.at, out: o.out, enter: 'fade', dur: 0.35, sfx: false }, (ctx, life) => {
     const pop = 0.9 + 0.1 * (life.p ?? 1);
@@ -198,7 +198,7 @@ export function compare(s, o) {
         ctx.stroke();
       }
     };
-    row(o.a, -40, 110, 'rgba(255,255,255,0.7)', true);
+    row(o.a, -40, 110, 'rgba(255,255,255,0.7)', o.strike !== false);
     const bp = clamp((life.local - 1.0) / 0.4);
     ctx.globalAlpha *= bp;
     row(o.b, 140, 120, YELLOW, false);

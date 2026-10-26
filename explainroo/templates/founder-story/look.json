@@ -1,0 +1,16 @@
+{
+  "extends": "midnight",
+  "name": "founder-story",
+  "bg": "#0b0a09",
+  "ink": "#ffffff",
+  "muted": "#d8cbb2",
+  "accent": "yellow",
+  "colors": { "yellow": "#f0c978" },
+  "fonts": {
+    "display": { "family": "Playfair Display", "weight": 700 },
+    "body": { "family": "Plus Jakarta Sans", "weight": 600 }
+  },
+  "background": "plain",
+  "music": "inspiring",
+  "transition": "fade"
+}

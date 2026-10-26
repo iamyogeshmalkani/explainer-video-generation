@@ -18,6 +18,8 @@ you choose where it comes from:
 
 | Source | Cost | Notes |
 |---|---|---|
+| `scripts/shot-images.mjs <project> --local` (explainroo's `image` command with `--model local`: Z-Image-Turbo on this Mac) | free; about 2 minutes a picture at 576x1024 on an M2 with 16 GB; nothing leaves your computer | one-time setup: `sh setup-local-images.sh` in the repository root (about 6 GB); text-to-image only, so a recurring person is kept alike only by describing them the same way in every prompt |
+| `scripts/shot-images.mjs <project> --pollinations` (`--model pollinations`: hosted FLUX on pollinations.ai) | about 10 seconds a picture; needs `POLLINATIONS_API_KEY` in `explainroo/.env`; **prompts are sent to pollinations.ai**; text-to-image only | used for the `newcomen-short` test video |
 | `scripts/shot-images.mjs` (explainroo's `image` command, AI pictures through OpenRouter) | paid: about 7 to 13 cents a picture, about half with `--cheap`; the 14 sample shots are about $1 to $2 | needs an OpenRouter key; sends your prompts to that service; **not tested here, no key was available** |
 | Pictures you make or license elsewhere (any image tool, stock, your own photos) | depends | save as `assets/shot01.png` (or `.jpg`, `.webp`), 9:16 |
 | Short video clips (any image-to-video tool, stock footage, screen recordings) | depends | save as `assets/shot01.mp4` (or `.mov`, `.webm`); the clip plays as it is |

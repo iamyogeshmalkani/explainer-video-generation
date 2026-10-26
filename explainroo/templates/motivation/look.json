@@ -1,0 +1,26 @@
+{
+  "extends": "midnight",
+  "name": "motivation",
+  "dark": true,
+  "bg": "#000000",
+  "ink": "#ffffff",
+  "muted": "#b8b0a4",
+  "accent": "yellow",
+  "colors": {
+    "yellow": "#ffc61a",
+    "red": "#ff1f1f"
+  },
+  "fonts": {
+    "display": {
+      "family": "Playfair Display",
+      "weight": 700
+    },
+    "body": {
+      "family": "Playfair Display",
+      "weight": 400
+    }
+  },
+  "background": "plain",
+  "music": "calm",
+  "transition": "cut"
+}

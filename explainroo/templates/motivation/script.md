@@ -1,0 +1,6 @@
+# Marcus Aurelius: the work of a human being
+
+> Sources: the quote is Meditations 5.1 in George Long's 1862 translation (public domain), checked against Standard Ebooks and the MIT Internet Classics Archive: "In the morning when thou risest unwillingly, let this thought be present—I am rising to the work of a human being." Marcus Aurelius was a Roman emperor (161 to 180) and a Stoic philosopher; the Meditations is a private journal, not written for publication. The commentary lines (getting up is part of being human; work is what we were made for) restate the passage's own argument. Keep quotes to verified text, and use a public-domain translation or your own paraphrase.
+
+## story {transition=cut hold=1.5}
+[#q1] In the morning when thou risest unwillingly, [#q2] let this thought be present: [#q3] I am rising to the work of a human being. [#s1] Marcus Aurelius was a Roman emperor, [#s2] and a Stoic philosopher. [#s3] He wrote these words in a private journal, [#s4] the book we now call Meditations. [#s5] He was reminding himself that getting up is part of being human. [#s6] Work is what we were made for. [#s7] So when you feel like staying in bed, [#s8] get up, and do the work of a human being.
