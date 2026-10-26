@@ -1,0 +1,22 @@
+{
+  "title": "इतिहास की कहानी",
+  "theme": "look.json",
+  "size": "9:16",
+  "language": "hi",
+  "voice": "hm_omega",
+  "speed": 0.95,
+  "pace": 1.05,
+  "music": { "style": "epic", "key": "D", "volume": 0.8, "duck": -4 },
+  "sfx": "minimal",
+  "captions": false,
+  "camera": "still",
+  "motionBlur": false,
+  "cover": 1.4,
+  "loudness": -12,
+  "emphasisDb": 4,
+  "watermark": false,
+  "images": {
+    "model": "pollinations",
+    "style": "dark dramatic oil painting, thick visible brushstrokes, strong chiaroscuro, glowing golden-orange firelight and smoke against a deep blue-black night, 19th century romantic history painting, cinematic, highly detailed faces, vertical 9:16, no text, no letters, no signs, no logos"
+  }
+}

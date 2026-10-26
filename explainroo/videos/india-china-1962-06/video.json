@@ -1,0 +1,27 @@
+{
+  "title": "नेहरू की वह रणनीति जो उल्टी पड़ी",
+  "theme": "look.json",
+  "size": "9:16",
+  "language": "hi",
+  "voice": "hm_omega",
+  "speed": 0.95,
+  "pace": 1.05,
+  "music": {
+    "style": "epic",
+    "key": "D",
+    "volume": 0.6,
+    "duck": -7
+  },
+  "sfx": "minimal",
+  "captions": false,
+  "camera": "still",
+  "motionBlur": false,
+  "cover": 1.4,
+  "loudness": -12,
+  "emphasisDb": 4,
+  "watermark": false,
+  "images": {
+    "model": "pollinations",
+    "style": "dark dramatic oil painting, thick visible brushstrokes, strong chiaroscuro, cold blue moonlight and glowing orange firelight and smoke, snow-covered Himalayan peaks, 1950s and 1960s mid-century setting, 19th century romantic history painting, cinematic, highly detailed faces, vertical 9:16, no text, no letters, no writing, no signs, no logos, no flags, no modern objects"
+  }
+}

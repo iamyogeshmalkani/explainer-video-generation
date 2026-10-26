@@ -1,0 +1,16 @@
+{
+  "extends": "midnight",
+  "name": "dark-history-hindi",
+  "bg": "#070605",
+  "ink": "#ffffff",
+  "muted": "#c9b99a",
+  "accent": "yellow",
+  "colors": { "yellow": "#fff200" },
+  "fonts": {
+    "display": { "family": "Noto Sans Devanagari", "weight": 700 },
+    "body": { "family": "Noto Sans Devanagari", "weight": 700 }
+  },
+  "background": "plain",
+  "music": "epic",
+  "transition": "cut"
+}
