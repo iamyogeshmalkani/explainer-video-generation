@@ -66,6 +66,32 @@ export function writeWav(file, samples, sampleRate) {
   fs.writeFileSync(file, Buffer.concat([head, data]));
 }
 
+// Makes chosen stretches of a narration louder (the words in [loud] ... [/loud]). Each region is
+// { start, end } in seconds; it gets `db` more gain with short ramps so nothing clicks, and peaks that the boost
+// pushes up are rounded off softly instead of clipping. Returns a new array.
+export function boostRegions(samples, sampleRate, regions, db, { ramp = 0.04, pad = 0.04 } = {}) {
+  const gain = new Float32Array(samples.length).fill(1);
+  const top = 10 ** (db / 20);
+  const r = Math.max(1, Math.round(ramp * sampleRate));
+  for (const { start, end } of regions) {
+    const a = Math.max(0, Math.round((start - pad) * sampleRate));
+    const b = Math.min(samples.length, Math.round((end + pad) * sampleRate));
+    for (let i = Math.max(0, a - r); i < Math.min(samples.length, b + r); i++) {
+      const edge = i < a ? (i - (a - r)) / r : i >= b ? 1 - (i - b) / r : 1;
+      const g = 1 + (top - 1) * Math.min(1, Math.max(0, edge));
+      if (g > gain[i]) gain[i] = g;
+    }
+  }
+  const out = new Float32Array(samples.length);
+  const knee = 0.85;
+  for (let i = 0; i < samples.length; i++) {
+    const y = samples[i] * gain[i];
+    const m = Math.abs(y);
+    out[i] = m > knee ? Math.sign(y) * (knee + (1 - knee) * Math.tanh((m - knee) / (1 - knee))) : y;
+  }
+  return out;
+}
+
 export function resample(samples, from, to) {
   if (from === to) return samples;
   const ratio = from / to;

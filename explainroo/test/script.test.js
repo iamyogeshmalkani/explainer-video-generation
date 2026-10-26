@@ -65,3 +65,18 @@ test('marks resolve to the next word, or the last word end', () => {
   });
   assert.deepEqual(resolveMarks(units, times), { start: 0.1, mid: 0.6, end: 1.1 });
 });
+
+test('[loud] marks words for a louder voice and does not change what is shown or spoken', () => {
+  const units = tokenizeNarration('[loud]Richest person[/loud] ever? Meet [loud]{Mansa Musa|Mahn sah Moo sah}[/loud], king.');
+  const words = units.filter((u) => u.type === 'word');
+  assert.deepEqual(words.filter((w) => w.emph).map((w) => w.display), ['Richest', 'person', 'Mansa Musa,']);
+  assert.equal(words.map((w) => w.display).join(' '), 'Richest person ever? Meet Mansa Musa, king.');
+  assert.ok(words.every((w) => w.emph === undefined || w.emph === true));
+  assert.equal(tokenizeNarration('No tags here.').some((u) => u.emph), false);
+});
+
+test('[loud] must be opened and closed in order', () => {
+  assert.throws(() => tokenizeNarration('[loud]never closed'), ScriptError);
+  assert.throws(() => tokenizeNarration('stray [/loud]'), ScriptError);
+  assert.throws(() => tokenizeNarration('[loud]a [loud]b[/loud]'), ScriptError);
+});

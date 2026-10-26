@@ -70,8 +70,8 @@ function mergeSpans(spans) {
   return merged;
 }
 
-function duckEnv(spans) {
-  const low = dbToGain(DUCK_DB);
+function duckEnv(spans, duckDb = DUCK_DB) {
+  const low = dbToGain(duckDb);
   const e = new Env(1).set(1, 0);
   for (const s of mergeSpans(spans)) {
     const a0 = Math.max(0, s.start - DUCK_ATTACK);
@@ -183,7 +183,7 @@ export async function renderSoundtrack(opts = {}) {
     const volume = Math.max(0, Math.min(2, music.volume == null ? 0.5 : Number(music.volume)));
     renderInto(synth, L, R, {
       compressor: new Compressor(sr, { threshold: -18, ratio: 2, knee: 10, attack: 0.02, release: 0.3 }),
-      gains: [levelEnv(dbToGain(MUSIC_BASE_DB + plan.mixDb) * (volume / 0.5), duration), duckEnv([...voiceSpans, ...clipSpans])],
+      gains: [levelEnv(dbToGain(MUSIC_BASE_DB + plan.mixDb) * (volume / 0.5), duration), duckEnv([...voiceSpans, ...clipSpans], music.duck ?? plan.duck ?? DUCK_DB)],
     });
   }
 

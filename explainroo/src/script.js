@@ -60,7 +60,9 @@ export function tokenizeNarration(text, line = 0, language = 'en') {
   const punctuation = segmenter ? /^[.,;:!?।。！？、，；：）」』)\]"'’”…]+$/ : /^[.,;:!?।)\]"'’…]+$/;
   let i = 0;
   let pendingSpace = false;
+  let loud = false; // inside [loud] ... [/loud]: the voice is made louder on these words
   const n = text.length;
+  const isTag = (j) => text.startsWith('[#', j) || text.startsWith('[pause', j) || text.startsWith('[loud]', j) || text.startsWith('[/loud]', j);
   const pushWord = (display, spoken) => {
     const prev = units[units.length - 1];
     if (!pendingSpace && prev && prev.type === 'word' && punctuation.test(display)) {
@@ -68,7 +70,7 @@ export function tokenizeNarration(text, line = 0, language = 'en') {
       prev.spoken += spoken;
       return;
     }
-    units.push({ type: 'word', display, spoken, space: pendingSpace || !units.some((u) => u.type === 'word') });
+    units.push({ type: 'word', display, spoken, space: pendingSpace || !units.some((u) => u.type === 'word'), ...(loud ? { emph: true } : {}) });
     pendingSpace = false;
   };
   while (i < n) {
@@ -80,6 +82,13 @@ export function tokenizeNarration(text, line = 0, language = 'en') {
       if (!/^[A-Za-z0-9_-]+$/.test(name)) throw new ScriptError(`marker "${text.slice(i, end + 1 || i + 12)}" should look like [#name]`, line);
       units.push({ type: 'mark', name });
       i = end + 1;
+      continue;
+    }
+    if (text.startsWith('[loud]', i) || text.startsWith('[/loud]', i)) {
+      const opening = text.startsWith('[loud]', i);
+      if (opening === loud) throw new ScriptError(opening ? '[loud] is already open; close it with [/loud] first' : '[/loud] has no matching [loud]', line);
+      loud = opening;
+      i += opening ? 6 : 7;
       continue;
     }
     if (text.startsWith('[pause', i)) {
@@ -107,7 +116,7 @@ export function tokenizeNarration(text, line = 0, language = 'en') {
       continue;
     }
     let j = i;
-    while (j < n && !/\s/.test(text[j]) && !text.startsWith('[#', j) && !text.startsWith('[pause', j) && text[j] !== '{') j++;
+    while (j < n && !/\s/.test(text[j]) && !isTag(j) && text[j] !== '{') j++;
     const word = text.slice(i, j);
     if (segmenter) {
       let prefix = '';
@@ -120,6 +129,7 @@ export function tokenizeNarration(text, line = 0, language = 'en') {
     } else pushWord(word, word);
     i = j;
   }
+  if (loud) throw new ScriptError('[loud] is never closed; end it with [/loud]', line);
   return units;
 }
 

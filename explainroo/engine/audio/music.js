@@ -449,6 +449,270 @@ const STYLES = {
       I.bell(syn, lanes.bell, t + 0.6, api.tonic + 24, 0.5, { decay: Math.min(2.5, remain), level: 0.045, partials: 3 });
     },
   },
+
+  // Dark cinematic bed: studied from a stoic-wisdom short. A drone on the minor chord of the key with a
+  // drum part that builds through the sections (toms, then kick and claps, then a full beat with fills),
+  // deep sub-bass that grows, and rising swells into crashes.
+  cinematic: {
+    description: 'Dark cinematic drums: a low minor drone with a drum part that builds (toms, kick, claps, fills and crashes), deep sub-bass and rising swells (about 100 bpm). Stoic, motivational or serious topics.',
+    mixDb: -9.5,
+    duck: -3, // dips only 3 dB under the voice (other styles dip 8), so the drums are heard while the narrator speaks
+    bpm: 100,
+    keys: ['E', 'D', 'F#', 'B'],
+    barsPerChord: 2,
+    // vi-IV-I-V in a major key: the progression starts on the minor chord (C#m in E)
+    progressions: [
+      [C(5, { seventh: true }), C(3, { ninth: true }), C(0, { ninth: true }), C(4, { sus4: true })],
+      [C(5, { ninth: true }), C(4), C(3, { seventh: true }), C(5, { seventh: true })],
+      [C(5), C(3), C(0), C(4)],
+      [C(5, { seventh: true }), C(1, { seventh: true }), C(4, { sus4: true }), C(5, { ninth: true })],
+    ],
+    cadence: C(4, { sus4: true }),
+    final: C(5, { ninth: true }),
+    trimDb: 0,
+    reverb: { seconds: 4.5, level: 0.9 },
+    lanes: {
+      pad: { filter: { type: 'lowpass', freq: 1400, q: 0.6, lfo: { rate: 0.05, depth: 450 } }, reverb: 0.5 },
+      shimmer: { filter: { type: 'lowpass', freq: 2600, q: 0.5, lfo: { rate: 0.07, depth: 600 } }, reverb: 0.7, gain: 0.6 },
+      sub: { filter: { type: 'lowpass', freq: 140, q: 0.5 }, gain: 1 },
+      boom: { filter: { type: 'lowpass', freq: 240, q: 0.5 }, reverb: 0.3 },
+      tom: { filter: { type: 'lowpass', freq: 1100, q: 0.6 }, reverb: 0.5 },
+      clap: { filter: { type: 'highpass', freq: 500, q: 0.6 }, reverb: 0.6 },
+      tick: { filter: { type: 'highpass', freq: 4500, q: 0.7 }, reverb: 0.15, pan: -0.2 },
+      bell: { pan: 0.25, reverb: 0.9, panLfo: { rate: 0.09, depth: 0.5 } },
+      fx: { reverb: 0.6 },
+    },
+    bar(api, b) {
+      const { syn, lanes, beat, rng } = api;
+      const L = b.level;
+      const low = b.bass + 12; // the root of the chord, about E2
+      if (b.chordStart) {
+        const dur = b.chordDur;
+        // the drone: the chord an octave down, the root, and the root two octaves down as a sub
+        for (const m of b.voicing) I.padVoice(syn, lanes.pad, b.t, Math.max(40, m - 12), L === 0 ? 0.7 : 1, dur, { attack: 1.8, release: 2.8, level: 0.05 });
+        I.padVoice(syn, lanes.pad, b.t, b.bass, 1, dur, { attack: 2, release: 2.8, level: 0.06 });
+        I.bass(syn, lanes.sub, b.t, b.bass - 12, L === 0 ? 0.12 : L === 1 ? 0.3 : 0.9, dur + 0.4, { level: 0.3 }); // the sub grows with the sections
+        if (L >= 1) for (const m of topNotes(b.upper, 2)) I.padVoice(syn, lanes.shimmer, b.t, m, 0.8, dur, { attack: 2.2, release: 2.8, level: 0.02 });
+      }
+      // ---- drums ---- (D lifts them about 3 dB above the drone)
+      const D = 1.4;
+      const at = (k) => api.hum(b.t + k * beat, 0.004);
+      const phraseEnd = b.i % 4 === 3;
+      if (L === 0) {
+        // toms on the one, a soft answer on the and of three, a quiet pulse
+        I.tom(syn, lanes.tom, at(0), low, 0.8, { level: 0.5 * D, decay: 0.3 });
+        I.tom(syn, lanes.tom, at(2.5), low + 5, 0.45, { level: 0.5 * D, decay: 0.25 });
+        for (const k of [0, 1, 2, 3]) I.hat(syn, lanes.tick, at(k), k === 0 ? 0.6 : 0.35, rng, { level: 0.05 * D });
+        for (const k of [0, 2]) I.kick(syn, lanes.boom, at(k), 0.6, { level: 0.45 * D }); // a soft kick, so there is a beat from the start
+      } else if (L === 1) {
+        for (const k of [0, 2]) I.kick(syn, lanes.boom, at(k), 0.85, { level: 0.6 * D });
+        I.kick(syn, lanes.boom, at(1.75), 0.5, { level: 0.5 * D });
+        for (const k of [1, 3]) I.clap(syn, lanes.clap, at(k), 0.7, rng, { level: 0.14 * D });
+        I.tom(syn, lanes.tom, at(3.5), low + 7, 0.5, { level: 0.5 * D, decay: 0.22 });
+        for (let k = 0; k < 8; k++) I.shaker(syn, lanes.tick, at(k / 2), k % 2 ? 0.45 : 0.8, rng, { level: 0.045 * D });
+      } else {
+        for (let k = 0; k < 4; k++) I.kick(syn, lanes.boom, at(k), k === 0 ? 1 : 0.8, { level: 0.65 * D });
+        I.kick(syn, lanes.boom, at(2.5), 0.6, { level: 0.55 * D });
+        for (const k of [1, 3]) I.clap(syn, lanes.clap, at(k), 1, rng, { level: 0.2 * D });
+        for (let k = 0; k < 8; k++) I.hat(syn, lanes.tick, at(k / 2), k % 2 ? 0.45 : 0.8, rng, { level: 0.06 * D, open: k === 7 });
+        if (b.secBar === 0) I.crash(syn, lanes.tick, at(0), 1, rng, { level: 0.09 * D });
+        if (b.chordStart && b.i % 2 === 0) {
+          I.tom(syn, lanes.tom, at(0), low - 12, 1, { level: 0.8 * D, decay: 0.5 });
+          I.swell(syn, lanes.fx, b.t, 0.9, rng, { length: Math.min(2.4, b.chordDur), level: 0.06 * D });
+        }
+      }
+      // a tom fill at the end of every fourth bar, rising into the next phrase
+      if (phraseEnd && L >= 1) {
+        [2.5, 3, 3.25, 3.5, 3.75].forEach((k, n) => I.tom(syn, lanes.tom, at(k), low + 3 * (n + 1), 0.55 + 0.1 * n, { level: 0.5 * D, decay: 0.16 }));
+      }
+      // sparse bells
+      if (L >= 1 && b.i % 2 === 0) {
+        const pos = rng.pick([0, 1, 2, 2.5]);
+        I.bell(syn, lanes.bell, api.hum(b.t + pos * beat, 0.01), melodyNote(api, b, pos % 2 === 0, { low: 76, high: 90 }), api.vel(0.5, 0.15), { decay: 3.6, level: 0.04 });
+      }
+    },
+    accent(api, t, b) {
+      I.swell(api.syn, api.lanes.fx, t, 0.9, api.rng, { length: 1.6, level: 0.05 });
+      I.kick(api.syn, api.lanes.boom, t, 0.9, { level: 1.1 });
+      I.tom(api.syn, api.lanes.tom, t, b.bass + 12, 0.9, { level: 0.85, decay: 0.4 });
+      I.bell(api.syn, api.lanes.bell, t, nearestWithPc(b.pcs[0], 88), 0.45, { decay: 4, level: 0.045 });
+    },
+    ending(api, t, remain, f) {
+      const { syn, lanes, rng } = api;
+      for (const m of f.voicing) I.padVoice(syn, lanes.pad, t, Math.max(40, m - 12), 1, Math.max(0.2, remain - 1.6), { attack: 0.3, release: 1.4, level: 0.05 });
+      I.bass(syn, lanes.sub, t, f.bass - 12, 1, Math.max(0.4, remain * 0.8), { level: 0.4 });
+      I.kick(syn, lanes.boom, t, 1, { level: 1 });
+      I.tom(syn, lanes.tom, t, f.bass, 1, { level: 0.9, decay: 0.7 });
+      I.crash(syn, lanes.tick, t, 1, rng, { level: 0.1 });
+      I.bell(syn, lanes.bell, t + 0.15, api.tonic + 24, 0.5, { decay: Math.min(4.5, remain + 0.5), level: 0.05 });
+    },
+  },
+  // Inspiring underscore for founder stories and biographies. Studied from stock "inspiring documentary" beds
+  // (sparse piano that grows, legato strings underneath, a soft beat only near the climax, a major key and
+  // about 100 bpm) and from the arc such a story has: a quiet start, a slow lift and a warm, resolved ending.
+  inspiring: {
+    description: 'Inspiring piano and strings: a sparse piano arpeggio that grows with legato strings, a warm bass, then glockenspiel and a soft drum bed at the climax (about 96 bpm, major key). Founder stories, biographies, comebacks.',
+    mixDb: -11.5,
+    bpm: 96,
+    keys: ['D', 'G', 'C', 'A'],
+    barsPerChord: 2,
+    progressions: [
+      [C(0, { ninth: true }), C(4), C(5, { seventh: true }), C(3, { ninth: true })], // I V vi IV
+      [C(5, { seventh: true }), C(3, { ninth: true }), C(0), C(4)], // vi IV I V
+      [C(3, { ninth: true }), C(0), C(4), C(5, { seventh: true })], // IV I V vi
+      [C(0), C(2, { seventh: true }), C(3, { ninth: true }), C(4, { sus4: true })], // I iii IV V
+    ],
+    cadence: C(4, { sus4: true }),
+    final: C(0, { ninth: true }),
+    trimDb: 0,
+    reverb: { seconds: 3.4, level: 0.85 },
+    lanes: {
+      pad: { filter: { type: 'lowpass', freq: 1900, q: 0.5, lfo: { rate: 0.05, depth: 500 } }, reverb: 0.5 },
+      hi: { filter: { type: 'lowpass', freq: 3200, q: 0.5, lfo: { rate: 0.07, depth: 700 } }, reverb: 0.65, gain: 0.7 },
+      ep: { reverb: 0.4, filter: { type: 'lowpass', freq: 3600, q: 0.5 }, panLfo: { rate: 0.13, depth: 0.15 } },
+      bass: { filter: { type: 'lowpass', freq: 520, q: 0.5 }, gain: 0.55 },
+      boom: { filter: { type: 'lowpass', freq: 220, q: 0.5 }, reverb: 0.25 },
+      clap: { filter: { type: 'highpass', freq: 600, q: 0.6 }, reverb: 0.55 },
+      tick: { filter: { type: 'highpass', freq: 5000, q: 0.7 }, reverb: 0.2, pan: 0.15 },
+      bell: { pan: 0.28, reverb: 0.75, panLfo: { rate: 0.1, depth: 0.4 } },
+      fx: { reverb: 0.5 },
+    },
+    bar(api, b) {
+      const { syn, lanes, beat, rng } = api;
+      const L = b.level;
+      const at = (k) => api.hum(b.t + k * beat, 0.004);
+      // strings: long chords that swell in; a high octave joins at the climax
+      if (b.chordStart) {
+        const lift = L === 0 ? 0.55 : L === 0.5 ? 0.8 : 1;
+        for (const m of b.voicing) I.padVoice(syn, lanes.pad, b.t, m, lift, b.chordDur, { attack: L === 0 ? 2.4 : 1.6, release: 2.6, level: L >= 2 ? 0.045 : 0.034 });
+        if (L >= 2) for (const m of topNotes(b.upper, 2)) I.padVoice(syn, lanes.hi, b.t, m + 12, 1, b.chordDur, { attack: 2, release: 2.6, level: 0.02 });
+        if (L >= 1) I.bass(syn, lanes.bass, b.t, b.bass, 0.6, b.chordDur - 0.05, { level: 0.2 });
+        if (L >= 1 && b.secBar === 0) I.swell(syn, lanes.fx, b.t, 0.7, rng, { length: Math.min(2.4, b.chordDur), level: 0.04 });
+      }
+      // piano: the heart of the bed. Quarter notes at the start, eighth-note arpeggios as it grows.
+      const up = b.upper;
+      const pick = (idx) => up[Math.min(up.length - 1, idx)];
+      if (L <= 0.5) {
+        [0, 1, 2, 3].forEach((k, n) => I.epiano(syn, lanes.ep, at(k), pick([0, 2, 3, 2][n]), api.vel(L === 0 ? 0.42 : 0.5, 0.1), beat * 1.6, { level: 0.17 }));
+      } else {
+        const shape = b.i % 2 ? [0, 2, 1, 3, 2, 3, 1, 2] : [0, 1, 2, 3, 2, 1, 2, 3];
+        shape.forEach((idx, n) => I.epiano(syn, lanes.ep, at(n / 2), pick(idx), api.vel(n % 2 ? 0.42 : n === 0 ? 0.62 : 0.52, 0.1), beat * 0.9, { level: 0.17 }));
+        if (L >= 2) I.epiano(syn, lanes.ep, at(0), pick(3) + 12, api.vel(0.42), beat * 1.8, { level: 0.12 });
+      }
+      // climax: a soft beat that stays under the voice, glockenspiel on top
+      if (L >= 2) {
+        for (const k of [0, 2]) I.kick(syn, lanes.boom, at(k), k === 0 ? 0.7 : 0.5, { level: 0.38 });
+        for (const k of [1, 3]) I.clap(syn, lanes.clap, at(k), 0.6, rng, { level: 0.08 });
+        for (let k = 0; k < 8; k++) I.shaker(syn, lanes.tick, at(k / 2), k % 2 ? 0.4 : 0.7, rng, { level: 0.03 });
+        if (b.secBar === 0) I.crash(syn, lanes.tick, at(0), 0.8, rng, { level: 0.06 });
+        if (b.i % 2 === 0) {
+          const pos = rng.pick([0.5, 1.5, 2.5, 3]);
+          I.bell(syn, lanes.bell, api.hum(b.t + pos * beat, 0.01), melodyNote(api, b, pos % 2 === 0, { low: 76, high: 90 }), api.vel(0.5, 0.15), { decay: 3, level: 0.04 });
+        }
+      }
+    },
+    accent(api, t, b) {
+      I.swell(api.syn, api.lanes.fx, t, 0.7, api.rng, { length: 1.2, level: 0.035 });
+      I.bell(api.syn, api.lanes.bell, t, nearestWithPc(b.pcs[0], 84), 0.45, { decay: 3, level: 0.045 });
+    },
+    ending(api, t, remain, f) {
+      const { syn, lanes } = api;
+      for (const m of f.voicing) I.padVoice(syn, lanes.pad, t, m, 1, Math.max(0.2, remain - 1.4), { attack: 0.4, release: 1.4, level: 0.045 });
+      I.bass(syn, lanes.bass, t, f.bass, 0.7, Math.max(0.3, remain * 0.8), { level: 0.22 });
+      f.voicing.forEach((m, k) => I.epiano(syn, lanes.ep, t + k * 0.11, m + 12, 0.55 - k * 0.05, Math.max(0.4, remain - 0.5), { level: 0.17 }));
+      I.bell(syn, lanes.bell, t + 0.2, api.tonic + 24, 0.5, { decay: Math.min(4, remain + 0.5), level: 0.05 });
+      I.kick(syn, lanes.boom, t, 0.6, { level: 0.35 });
+    },
+  },
+
+  // Epic war score: a second cinematic bed, different from `cinematic`. Slow minor strings and low brass,
+  // a driving low-string ostinato, big taiko hits and snare rolls that build, cymbal swells.
+  epic: {
+    description: 'Epic war score: slow minor strings and low brass, a driving low-string ostinato, big taiko hits and snare rolls that build (about 76 bpm). Battles, empires, dark history.',
+    mixDb: -12,
+    duck: -3, // like cinematic: only 3 dB under the voice, so the drums stay audible
+    bpm: 76,
+    keys: ['C', 'D', 'F', 'G'], // the minor chord is vi: Am, Bm, Dm, Em
+    barsPerChord: 1,
+    progressions: [
+      [C(5), C(3), C(4), C(5)], // Am F G Am
+      [C(5), C(4), C(3), C(4)], // Am G F G
+      [C(5), C(2), C(3), C(4)], // Am Em F G
+      [C(5, { seventh: true }), C(3), C(0), C(4)], // Am7 F C G
+    ],
+    cadence: C(4),
+    final: C(5),
+    trimDb: 0,
+    reverb: { seconds: 5.5, level: 1 },
+    lanes: {
+      strings: { filter: { type: 'lowpass', freq: 2400, q: 0.5, lfo: { rate: 0.06, depth: 600 } }, reverb: 0.6 },
+      brass: { filter: { type: 'lowpass', freq: 760, q: 0.7, lfo: { rate: 0.04, depth: 220 } }, reverb: 0.4, gain: 0.9 },
+      sub: { filter: { type: 'lowpass', freq: 150, q: 0.5 }, gain: 1 },
+      ostinato: { filter: { type: 'lowpass', freq: 1900, q: 0.8 }, reverb: 0.25 },
+      taiko: { filter: { type: 'lowpass', freq: 700, q: 0.6 }, reverb: 0.55 },
+      boom: { filter: { type: 'lowpass', freq: 220, q: 0.5 }, reverb: 0.3 },
+      snare: { filter: { type: 'highpass', freq: 900, q: 0.6 }, reverb: 0.45 },
+      cym: { filter: { type: 'highpass', freq: 3500, q: 0.7 }, reverb: 0.4, pan: 0.15 },
+      bell: { pan: -0.25, reverb: 0.9, panLfo: { rate: 0.07, depth: 0.5 } },
+      fx: { reverb: 0.6 },
+    },
+    bar(api, b) {
+      const { syn, lanes, beat, rng } = api;
+      const L = b.level;
+      const root = b.bass + 12;
+      const D = 1.5; // lifts the drums about 3.5 dB above the strings
+      const at = (k) => api.hum(b.t + k * beat, 0.004);
+      const dur = b.chordDur;
+      if (b.chordStart) {
+        for (const m of b.voicing) I.padVoice(syn, lanes.strings, b.t, m, L === 0 ? 0.7 : 1, dur, { attack: 1.1, release: 2, level: 0.035 });
+        I.padVoice(syn, lanes.brass, b.t, b.bass, 1, dur, { attack: 0.8, release: 1.8, level: 0.07 });
+        I.padVoice(syn, lanes.brass, b.t, nearestWithPc(b.pcs[2], b.bass + 7), 1, dur, { attack: 1, release: 1.8, level: 0.05 });
+        I.bass(syn, lanes.sub, b.t, b.bass - 12, L === 0 ? 0.2 : 0.9, dur + 0.3, { level: 0.3 });
+        if (L >= 1) for (const m of topNotes(b.upper, 2)) I.padVoice(syn, lanes.strings, b.t, m + 12, 0.8, dur, { attack: 1.3, release: 2.2, level: 0.02 });
+      }
+      const phraseEnd = b.i % 4 === 3;
+      if (L === 0) {
+        // the march begins: one deep taiko a bar, an answer every other bar
+        I.tom(syn, lanes.taiko, at(0), root - 12, 1, { level: 0.7 * D, decay: 0.6 });
+        I.kick(syn, lanes.boom, at(0), 0.7, { level: 0.5 * D });
+        if (b.i % 2 === 1) I.tom(syn, lanes.taiko, at(2.5), root - 7, 0.6, { level: 0.5 * D, decay: 0.4 });
+      } else {
+        // the ostinato: low strings in eighths, the fifth every third note
+        const fifth = nearestWithPc(b.pcs[2], root + 7);
+        for (let k = 0; k < 8; k++) I.pluck(syn, lanes.ostinato, at(k / 2), k % 3 === 2 ? fifth : root, k % 2 ? 0.5 : 0.85, { decay: 0.2, bright: 1800, type: 'sawtooth', level: 0.1, q: 1.4 });
+        I.tom(syn, lanes.taiko, at(0), root - 12, 1, { level: 0.8 * D, decay: 0.6 });
+        I.kick(syn, lanes.boom, at(0), 0.9, { level: 0.55 * D });
+        I.tom(syn, lanes.taiko, at(2), root - 12, 0.85, { level: 0.65 * D, decay: 0.5 });
+        if (L >= 2) {
+          for (const k of [1.5, 3, 3.5]) I.tom(syn, lanes.taiko, at(k), root - 5, 0.7, { level: 0.5 * D, decay: 0.3 });
+          for (const k of [1, 3]) I.clap(syn, lanes.snare, at(k), 0.9, rng, { level: 0.16 * D });
+          if (b.secBar === 0) I.crash(syn, lanes.cym, at(0), 1, rng, { level: 0.09 * D });
+        }
+      }
+      // a snare roll that crescendos into the next phrase
+      if (phraseEnd && L >= 1) for (let k = 0, v = 0.3; k < 8; k++, v += 0.09) I.clap(syn, lanes.snare, at(2 + k * 0.25), Math.min(1, v), rng, { level: 0.09 * D });
+      if (L >= 1 && b.i % 4 === 0) I.swell(syn, lanes.fx, b.t, 0.9, rng, { length: Math.min(2.4, dur), level: 0.06 * D });
+      if (L >= 1 && b.i % 2 === 0) {
+        const pos = rng.pick([0, 1, 2, 2.5]);
+        I.bell(syn, lanes.bell, api.hum(b.t + pos * beat, 0.01), melodyNote(api, b, pos % 2 === 0, { low: 72, high: 86 }), api.vel(0.5, 0.15), { decay: 3.2, level: 0.035 });
+      }
+    },
+    accent(api, t, b) {
+      I.swell(api.syn, api.lanes.fx, t, 0.9, api.rng, { length: 1.6, level: 0.05 });
+      I.kick(api.syn, api.lanes.boom, t, 1, { level: 1.1 });
+      I.tom(api.syn, api.lanes.taiko, t, b.bass, 1, { level: 1, decay: 0.6 });
+      I.crash(api.syn, api.lanes.cym, t, 0.8, api.rng, { level: 0.08 });
+    },
+    ending(api, t, remain, f) {
+      const { syn, lanes, rng } = api;
+      for (const m of f.voicing) I.padVoice(syn, lanes.strings, t, m, 1, Math.max(0.2, remain - 1.6), { attack: 0.3, release: 1.4, level: 0.04 });
+      I.padVoice(syn, lanes.brass, t, f.bass, 1, Math.max(0.2, remain - 1.6), { attack: 0.3, release: 1.4, level: 0.08 });
+      I.bass(syn, lanes.sub, t, f.bass - 12, 1, Math.max(0.4, remain * 0.8), { level: 0.4 });
+      I.kick(syn, lanes.boom, t, 1, { level: 1 });
+      I.tom(syn, lanes.taiko, t, f.bass, 1, { level: 1.1, decay: 0.9 });
+      I.crash(syn, lanes.cym, t, 1, rng, { level: 0.1 });
+    },
+  },
 };
 
 export const STYLE_INFO = Object.fromEntries(Object.entries(STYLES).map(([k, s]) => [k, { description: s.description, bpm: s.bpm, mixDb: s.mixDb || 0 }]));
@@ -470,7 +734,7 @@ export function musicPlan(music = {}) {
   const seed = music.seed ?? 1;
   const keyRoot = music.key != null && music.key !== '' ? parseKey(music.key) : KEYS[makeRng(hashSeed('key', name, seed)).pick(def.keys)];
   const bpm = clamp((Number(music.bpm) || def.bpm) * (Number(music.tempo) || 1), 40, 200);
-  return { style: name, seed, keyRoot, key: KEY_LABELS[keyRoot], bpm, mixDb: def.mixDb || 0 };
+  return { style: name, seed, keyRoot, key: KEY_LABELS[keyRoot], bpm, mixDb: def.mixDb || 0, duck: def.duck };
 }
 
 function sectionLevels(n) {

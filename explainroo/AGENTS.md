@@ -178,6 +178,16 @@ something to a friend at a table.
   like "just", "simply", "really", "actually" and "exactly".
 - Do not tell the viewer to do obvious things ("Let's dive in", "Stay tuned").
 - End with a plain sentence that sums up the main point.
+- **Make it engaging.** Open with a hook in the first 3 seconds: a surprising fact, a vivid contradiction or a
+  direct question, never "In this video". Every sentence adds a concrete fact (a name, a number, a place, a date).
+  Raise one question early and answer it late, include one turn (a surprise, a twist or a consequence), vary the
+  sentence length, and end by paying off the hook with one plain sentence that sums up the point. Read the script back
+  as a viewer would before you make the voice: would you still be watching at 5 seconds and at 20? Rewrite weak spots.
+- **Make the voice louder where the viewer must focus.** In every video, wrap the words that carry the focus in
+  `[loud]...[/loud]`: the first words of the intro (the hook), key names, numbers and dates, the turning point and
+  the closing point. The voice gets about 4 dB more level on those words only (`emphasisDb` in `video.json`, 0 to 9).
+  Use it sparingly, 3 to 6 spots of 1 to 4 words, never a whole paragraph, or nothing stands out. Do not use it
+  across paragraphs. It works with the Kokoro and ElevenLabs voices; a recording keeps its own delivery.
 
 Length and pace:
 
@@ -198,6 +208,7 @@ Script syntax:
 ## scene-id {hold=1.5}
 Narration for this scene. [#marker] A marker names a moment you can animate on.
 [pause 0.6] adds silence. {SQL|sequel} shows "SQL" in captions but says "sequel".
+[loud]These words[/loud] are spoken louder, to draw the viewer's focus.
 > Lines starting with > are notes for you and are not spoken.
 ```
 
@@ -861,7 +872,7 @@ videos/<name>/
 | `voice` | the language's voice | a Kokoro id or a provider object for Kokoro, ElevenLabs or a recording; English uses `af_heart`; see Voices |
 | `speed` | 0.9 for Kokoro, 1 otherwise | voice speed only, 0.6 to 1.6; ElevenLabs limits speed times pace to 0.7 through 1.2 |
 | `pace` | 1 | speed of the whole video (voice, pauses, animations), 0.7 to 1.6 |
-| `music` | `true` | `true` (the look's style), `warm`, `upbeat`, `calm`, `tech`, `playful`, `{ "style", "volume" }` or `false` |
+| `music` | `true` | `true` (the look's style), `warm`, `upbeat`, `calm`, `tech`, `playful`, `cinematic` (dark drums and drone, stoic or motivational), `epic` (war-score strings, low ostinato and taiko, battles and dark history), `inspiring` (sparse piano that grows over legato strings, a soft beat at the climax, major key; founder stories and biographies), `{ "style", "volume", "duck" }` or `false`; `duck` is how many dB the music dips under the narration (default -8, `cinematic` -3) |
 | `sfx` | `true` | sound effects: `true`, `"minimal"` or `false` |
 | `captions` | `"auto"` | text of the narration at the bottom; auto turns it on for vertical and square videos |
 | `cover` | `"auto"` | full-size JPEG, without captions, at the end of the first scene, or a still spec: `12.5`, `"intro"`, `"intro@2.4"`, `"intro@end"` |
@@ -870,6 +881,7 @@ videos/<name>/
 | `motionBlur` | `true` | motion blur on moving frames in the final render |
 | `lead`, `hold`, `end` | 0.35, 0.7, 1.4 | seconds before the voice, after it, and extra at the very end |
 | `sentenceGap`, `paragraphGap` | 0.3, 0.55 | pauses in generated narration; recordings keep their own pauses |
+| `emphasisDb` | 4 | how many decibels louder the words in `[loud]...[/loud]` are, 0 to 9 (0 turns it off) |
 | `loudness` | -14 | target loudness in LUFS |
 | `boil` | 0 | redraws per second of hand-drawn lines; 0 keeps them still |
 | `watermark` | `"explainroo.com"` | small text in a corner, or `false` |

@@ -145,3 +145,12 @@ export function swell(syn, lane, t, vel, rng, { length = 0.9, level = 0.05 } = {
   v.filter = { type: 'bandpass', q: 0.9, freqEnv: new Env(500).set(500, start).exp(3200, t) };
   syn.add(lane, v);
 }
+
+// A tuned drum: a sine that drops onto its pitch, plus a short click. For taiko-style hits and fills.
+export function tom(syn, lane, t, midi, vel, { level = 0.4, decay = 0.22 } = {}) {
+  const f = mtof(midi);
+  const v = new Voice(t, t + decay * 7 + 0.1);
+  v.layer({ wave: WAVES.sine, freqEnv: new Env(f * 1.8).set(f * 1.8, t).exp(f, t + 0.12), amp: perc(t, level * vel, 0.002, decay) });
+  v.layer({ wave: WAVES.tri, freqEnv: new Env(f * 3).set(f * 3, t).exp(f * 1.5, t + 0.05), amp: perc(t, level * vel * 0.25, 0.001, decay * 0.25) });
+  syn.add(lane, v);
+}

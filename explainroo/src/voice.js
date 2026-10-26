@@ -8,7 +8,7 @@ import { speechChunks, resolveMarks, normWord } from './script.js';
 import { alignWords, readAlike } from './align.js';
 import { loadTTS, transcribeWords, TTS_MODEL, TTS_SAMPLE_RATE, ttsDtype, asrModel } from './models.js';
 import { phonemize, generateSpeech } from './phonemes.js';
-import { writeWav, readWav, resample, trimSilence } from './wav.js';
+import { writeWav, readWav, resample, trimSilence, boostRegions } from './wav.js';
 import { elevenSpeech } from './elevenlabs.js';
 import { recordingFiles, decodeRecording, saveRecording, recordingCuts } from './recordings.js';
 
@@ -27,6 +27,8 @@ export function sceneHash(scene, chunks, config, recording = null) {
       chunks: recording ? scene.spoken : chunks.map((c) => [c.gapBefore, c.text]),
       // Markers and the shown text of each word are saved with the timings,
       // so moving a [#marker] or changing {shown|spoken} makes the scene again.
+      // [loud] words and their boost: only added when a scene uses them, so other scenes keep their cache.
+      ...(!recording && scene.units.some((u) => u.emph) ? { emphasis: scene.units.map((u, i) => (u.emph ? i : -1)).filter((i) => i >= 0), emphasisDb: config.emphasisDb } : {}),
       layout: (recording ? scene.units.filter((u) => u.type !== 'pause') : scene.units).map((u) => (u.type === 'mark' ? `#${u.name}` : u.type === 'word' ? u.display : '')).join('|'),
       // Added last and only for recordings, so Kokoro scenes keep their cache.
       ...(recording ? { recording } : {}),
@@ -163,7 +165,9 @@ async function synthesizeScene(project, scene, chunks, hash, tts, log) {
     total.set(p, off);
     off += p.length;
   }
-  writeWav(files.wav, total, sr);
+  // Words in [loud] ... [/loud] are made louder, using the timings just measured for them.
+  const loudRegions = scene.units.flatMap((u, i) => (u.emph && wordTimes[i] ? [{ start: wordTimes[i].start, end: wordTimes[i].end }] : []));
+  writeWav(files.wav, loudRegions.length && config.emphasisDb > 0 ? boostRegions(total, sr, loudRegions, config.emphasisDb) : total, sr);
 
   const words = [];
   scene.units.forEach((u, i) => {

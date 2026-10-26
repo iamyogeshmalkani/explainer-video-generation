@@ -39,9 +39,9 @@ Make a video
 Product demos
   capture [project] <url>  save screenshots, wording, colors, fonts and logo of a live site (--mobile)
 
-Images (optional, needs an OpenRouter API key)
+Images (optional: --model local runs on this computer, perchance uses perchance.org in a Chrome window (free, no key), cloudflare uses Workers AI (CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID), pollinations needs POLLINATIONS_API_KEY, the others an OpenRouter API key)
   image [project] <name> "<what to draw>"   save an illustration as assets/<name>.png
-                        (--model best|cheap, --aspect 16:9, --ref assets/a.png,assets/b.png, --no-style)
+                        (--model best|cheap|local|perchance|cloudflare|pollinations, --aspect 16:9, --ref assets/a.png,assets/b.png, --no-style)
   images [project]      list generated images and what they cost
 
 Reference

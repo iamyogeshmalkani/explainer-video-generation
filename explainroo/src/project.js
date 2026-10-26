@@ -11,7 +11,7 @@ import { THEMES as LOOKS } from '../engine/themes.js';
 import { parseColor } from '../engine/util.js';
 
 export const THEMES = Object.keys(LOOKS);
-export const MUSIC_STYLES = ['warm', 'upbeat', 'calm', 'tech', 'playful'];
+export const MUSIC_STYLES = ['warm', 'upbeat', 'calm', 'tech', 'playful', 'cinematic', 'epic', 'inspiring'];
 export const TRANSITIONS = ['auto', 'fade', 'slide', 'wipe', 'zoom', 'brush', 'cut'];
 export const THEME_MUSIC = Object.fromEntries(THEMES.map((name) => [name, LOOKS[name].music]));
 const ASPECTS = { '16:9': [1920, 1080], '9:16': [1080, 1920], '1:1': [1080, 1080], '4:5': [1080, 1350] };
@@ -52,6 +52,7 @@ export const DEFAULTS = {
   end: 1.4,
   sentenceGap: 0.3,
   paragraphGap: 0.55,
+  emphasisDb: 4,
   loudness: -14,
   seed: 1,
   boil: 0,
@@ -210,6 +211,7 @@ export function normalizeConfig(raw, dir = '.') {
   for (const k of ['lead', 'hold', 'end', 'sentenceGap', 'paragraphGap']) {
     if (!(typeof cfg[k] === 'number' && cfg[k] >= 0 && cfg[k] <= 10)) fail(`${k} must be a number of seconds between 0 and 10`);
   }
+  if (!(typeof cfg.emphasisDb === 'number' && cfg.emphasisDb >= 0 && cfg.emphasisDb <= 9)) fail('emphasisDb must be between 0 and 9 decibels (how much louder [loud] words are)');
   if (!(cfg.loudness <= -8 && cfg.loudness >= -30)) fail('loudness must be between -30 and -8 LUFS');
   if (!(cfg.boil >= 0 && cfg.boil <= 12)) fail('boil must be between 0 (off) and 12 redraws per second');
   if (cfg.watermark !== false && !(typeof cfg.watermark === 'string' && cfg.watermark.trim() && cfg.watermark.length <= 40)) {
@@ -268,6 +270,7 @@ export function normalizeConfig(raw, dir = '.') {
     music = { volume: 0.5, seed: cfg.seed, tempo: Math.sqrt(cfg.pace), ...music };
     if (!MUSIC_STYLES.includes(music.style)) fail(`music style must be one of ${MUSIC_STYLES.join(', ')}, not "${music.style}"`);
     if (!(music.volume >= 0 && music.volume <= 1)) fail('music.volume must be between 0 and 1');
+    if (music.duck !== undefined && !(music.duck >= -24 && music.duck <= 0)) fail('music.duck must be between -24 and 0 (decibels the music dips under the narration)');
   }
   cfg.music = music || null;
 
