@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Explainer Studio</title>
+<style>
+  :root {
+    --bg: #14161a; --panel: #1b1e24; --panel-2: #222630; --line: #2d323d; --text: #e8e6e1; --muted: #9a9ba3;
+    --gold: #c9a45c; --gold-ink: #231b09; --green: #6fae8a; --red: #d27a6e; --radius: 14px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif; }
+  header { display: flex; align-items: baseline; gap: 14px; padding: 26px 32px 8px; max-width: 1240px; margin: 0 auto; }
+  header h1 { margin: 0; font-size: 22px; letter-spacing: .2px; }
+  header span { color: var(--muted); font-size: 14px; }
+  main { max-width: 1240px; margin: 0 auto; padding: 16px 32px 60px; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+  @media (max-width: 960px) { main { grid-template-columns: 1fr; padding: 16px; } header { padding: 20px 16px 4px; } }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; }
+  h2 { margin: 0 0 14px; font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  label.field { display: block; margin-bottom: 18px; }
+  label.field > span { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+  textarea, input[type=text], select {
+    width: 100%; background: var(--panel-2); color: var(--text); border: 1px solid var(--line); border-radius: 10px;
+    padding: 11px 13px; font: inherit; outline: none;
+  }
+  textarea { resize: vertical; min-height: 72px; font-size: 16px; }
+  textarea:focus, input:focus, select:focus { border-color: var(--gold); }
+  .templates { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; margin-bottom: 18px; }
+  .tpl { position: relative; cursor: pointer; }
+  .tpl input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
+  .tpl div { height: 100%; background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; padding: 13px 14px; transition: border-color .15s, background .15s; }
+  .tpl b { display: block; font-size: 14.5px; margin-bottom: 4px; }
+  .tpl small { display: block; color: var(--muted); font-size: 12.5px; line-height: 1.4; }
+  .tpl em { display: inline-block; margin-top: 8px; font-style: normal; font-size: 11px; color: var(--gold); border: 1px solid #4a3f24; border-radius: 99px; padding: 1px 8px; }
+  .tpl input:checked + div { border-color: var(--gold); background: #2a2619; }
+  .tpl input:focus-visible + div { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  @media (max-width: 560px) { .row { grid-template-columns: 1fr; } }
+  .seg { display: flex; background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 3px; gap: 3px; }
+  .seg label { flex: 1; text-align: center; cursor: pointer; position: relative; }
+  .seg input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
+  .seg span { display: block; padding: 8px 4px; border-radius: 8px; font-size: 13px; color: var(--muted); }
+  .seg input:checked + span { background: var(--gold); color: var(--gold-ink); font-weight: 600; }
+  .seg input:focus-visible + span { outline: 2px solid var(--gold); }
+  button { font: inherit; cursor: pointer; border: 0; border-radius: 10px; padding: 12px 20px; }
+  .primary { background: var(--gold); color: var(--gold-ink); font-weight: 700; font-size: 15px; width: 100%; margin-top: 6px; }
+  .primary:hover { filter: brightness(1.07); }
+  .primary:disabled { opacity: .5; cursor: default; }
+  .ghost { background: transparent; color: var(--muted); border: 1px solid var(--line); padding: 7px 12px; font-size: 13px; }
+  .ghost:hover { color: var(--text); border-color: var(--muted); }
+  details.voices { margin: -6px 0 18px; }
+  details.voices summary { cursor: pointer; color: var(--gold); font-size: 13px; width: fit-content; list-style: none; }
+  details.voices summary::-webkit-details-marker { display: none; }
+  details.voices summary::before { content: '▸ '; } details.voices[open] summary::before { content: '▾ '; }
+  .vlist { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 8px; margin-top: 10px; }
+  .vrow { display: flex; align-items: center; gap: 10px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 7px 10px; }
+  .vrow.sel { border-color: var(--gold); background: #2a2619; }
+  .vrow .play { width: 30px; height: 30px; padding: 0; border-radius: 50%; background: var(--panel); border: 1px solid var(--line); color: var(--text); font-size: 11px; flex: none; }
+  .vrow .play:hover { border-color: var(--gold); color: var(--gold); }
+  .vrow .play.on { background: var(--gold); color: var(--gold-ink); border-color: var(--gold); }
+  .vrow .who { flex: 1; min-width: 0; line-height: 1.25; font-size: 13.5px; }
+  .vrow .who small { display: block; color: var(--muted); font-size: 12px; }
+  .vrow .use { padding: 4px 10px; font-size: 12px; }
+  .vmsg { color: var(--red); font-size: 12.5px; margin-top: 8px; min-height: 1px; }
+  .hint { color: var(--muted); font-size: 12.5px; margin-top: 10px; }
+  .err { color: var(--red); font-size: 13.5px; margin-top: 10px; min-height: 1px; }
+
+  .side { display: grid; gap: 24px; }
+  .empty { color: var(--muted); text-align: center; padding: 34px 10px; }
+  .jobhead { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
+  .jobhead h3 { margin: 0; font-size: 16px; line-height: 1.35; }
+  .jobhead small { color: var(--muted); }
+  .steps { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+  .step { font-size: 12px; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--line); color: var(--muted); }
+  .step.done { color: var(--green); border-color: #2f4a3c; }
+  .step.now { color: var(--gold-ink); background: var(--gold); border-color: var(--gold); font-weight: 600; animation: pulse 1.6s infinite; }
+  @keyframes pulse { 50% { opacity: .65; } }
+  .log { background: #101216; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; height: 200px; overflow: auto; font: 12px/1.55 ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .log div { white-space: pre-wrap; word-break: break-word; }
+  .log .tool { color: #8fa3bf; } .log .say { color: var(--text); } .log .warn { color: var(--red); }
+  .status { font-size: 13px; margin: 12px 0 0; }
+  .status.failed { color: var(--red); } .status.done { color: var(--green); }
+  .player { display: grid; justify-items: center; gap: 12px; }
+  video { width: min(100%, 340px); aspect-ratio: 9 / 16; background: #000; border-radius: 12px; max-height: 72vh; object-fit: contain; }
+  .links { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+  .links a { color: var(--gold); font-size: 13px; text-decoration: none; border: 1px solid #4a3f24; border-radius: 8px; padding: 6px 11px; }
+  .links a:hover { background: #2a2619; }
+  .summary { color: var(--muted); font-size: 13.5px; max-width: 420px; text-align: center; }
+  .lib { max-width: 1240px; margin: 0 auto; padding: 0 32px 60px; }
+  @media (max-width: 960px) { .lib { padding: 0 16px 50px; } }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+  .vid { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; cursor: pointer; text-align: left; padding: 0; color: inherit; }
+  .vid:hover { border-color: var(--gold); }
+  .vid .thumb { aspect-ratio: 9 / 16; background: var(--panel-2) center / cover no-repeat; display: grid; place-items: center; color: var(--muted); font-size: 28px; }
+  .vid .t { padding: 9px 11px 11px; font-size: 13px; line-height: 1.3; }
+  .vid .t small { display: block; color: var(--muted); margin-top: 3px; }
+</style>
+</head>
+<body>
+<header><h1>Explainer Studio</h1><span>Give a topic, pick a template, get a narrated video.</span></header>
+
+<main>
+  <form class="card" id="form" autocomplete="off">
+    <h2>New video</h2>
+    <label class="field"><span>Topic</span>
+      <textarea id="topic" placeholder="e.g. The richest person in history, or How the shipping container changed trade" maxlength="400" required></textarea>
+    </label>
+    <label class="field"><span>Your script, outline or sources <em style="font-style:normal;opacity:.7">(optional)</em></span>
+      <textarea id="script" maxlength="8000" placeholder="Paste your own narration to use as written, or key points, facts and links you want covered. Leave empty to have the script written for you."></textarea>
+    </label>
+    <div class="field" id="scriptModeBox" style="margin-bottom:18px" hidden><span style="display:block;font-size:13px;color:var(--muted);margin-bottom:6px">Use my text</span>
+      <div class="seg">
+        <label><input type="radio" name="scriptMode" value="exact" checked><span>As the script</span></label>
+        <label><input type="radio" name="scriptMode" value="outline"><span>As an outline</span></label>
+      </div>
+    </div>
+    <div><span style="display:block;font-size:13px;color:var(--muted);margin-bottom:8px">Template</span></div>
+    <div class="templates" id="templates" role="radiogroup" aria-label="Template"></div>
+    <div class="row">
+      <div class="field"><span style="display:block;font-size:13px;color:var(--muted);margin-bottom:6px">Length</span>
+        <div class="seg" id="length">
+          <label><input type="radio" name="length" value="short"><span>Short</span></label>
+          <label><input type="radio" name="length" value="standard" checked><span>Standard</span></label>
+          <label><input type="radio" name="length" value="long"><span>Long</span></label>
+        </div>
+      </div>
+      <label class="field"><span>Voice</span><select id="voice"></select></label>
+      <label class="field"><span>Pictures</span>
+        <select id="images">
+          <option value="both" selected>Local + Perchance</option>
+          <option value="all">All three at once</option>
+          <option value="local">Local only</option>
+          <option value="perchance">Perchance only</option>
+          <option value="cloudflare">Cloudflare only</option>
+          <option value="pollinations">Pollinations only</option>
+        </select>
+      </label>
+    </div>
+    <details class="voices" id="voices">
+      <summary>Listen to voices</summary>
+      <div class="vlist" id="vlist"></div>
+      <div class="vmsg" id="vmsg" role="alert"></div>
+    </details>
+    <label class="field"><span>Style notes <em style="font-style:normal;opacity:.7">(optional)</em></span>
+      <input type="text" id="notes" maxlength="300" placeholder="e.g. muted, mature colors; serious tone">
+    </label>
+    <p class="hint" style="margin:0 0 12px">Scripts are written to hook you in the first 3 seconds and keep the tension up. Every video speaks louder on the words that matter: the intro words, key names, numbers and the closing point.</p>
+    <button class="primary" id="go" type="submit">Make video</button>
+    <div class="err" id="err" role="alert"></div>
+    <p class="hint" id="imgHint">Local pictures are free and private (about 2 minutes each). Perchance opens a Chrome window and uses perchance.org, about 25 seconds each. Cloudflare Workers AI and Pollinations are hosted services that receive the picture prompts. Choosing several runs them at the same time. Templates that draw everything themselves ignore this. Making a video uses your Claude Code plan and takes roughly 10 to 25 minutes.</p>
+  </form>
+
+  <div class="side">
+    <section class="card" id="job">
+      <h2>Progress</h2>
+      <div class="empty" id="jobEmpty">Nothing running. Your video will show up here.</div>
+      <div id="jobBody" hidden>
+        <div class="jobhead">
+          <div><h3 id="jobTitle"></h3><small id="jobMeta"></small></div>
+          <button class="ghost" id="cancel" type="button">Cancel</button>
+        </div>
+        <div class="steps" id="steps"></div>
+        <div class="log" id="log" aria-live="polite"></div>
+        <p class="status" id="status"></p>
+      </div>
+    </section>
+    <section class="card" id="playerCard" hidden>
+      <h2 id="playerTitle">Your video</h2>
+      <div class="player">
+        <video id="video" controls playsinline preload="metadata"></video>
+        <p class="summary" id="summary"></p>
+        <div class="links" id="links"></div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<section class="lib">
+  <div class="card">
+    <h2>Library</h2>
+    <div class="grid" id="library"></div>
+    <div class="empty" id="libEmpty" hidden>No finished videos yet.</div>
+  </div>
+</section>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const STEPS = [['research', 'Research'], ['script', 'Script'], ['voice', 'Narration'], ['pictures', 'Pictures'], ['scenes', 'Scenes'], ['review', 'Review'], ['render', 'Render']];
+let config = null, current = null, source = null, timer = null;
+
+const api = async (url, opts) => {
+  const r = await fetch(url, opts);
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(data.error || `Request failed (${r.status})`);
+  return data;
+};
+const el = (tag, props = {}, ...kids) => { const n = Object.assign(document.createElement(tag), props); n.append(...kids); return n; };
+
+async function init() {
+  config = await api('/api/config');
+  const box = $('templates');
+  config.templates.forEach((t, i) => {
+    const label = el('label', { className: 'tpl' },
+      el('input', { type: 'radio', name: 'template', value: t.id, checked: t.id === 'sticker-pop' || (i === 0 && !config.templates.some((x) => x.id === 'sticker-pop')) }),
+      el('div', {}, el('b', { textContent: t.id }), el('small', { textContent: t.tagline || t.description.slice(0, 90) }),
+        el('em', { textContent: t.usesPhotos ? 'real photos' : t.usesPictures ? 'uses pictures' : 'drawn in code' })));
+    box.append(label);
+  });
+  const sel = $('voice');
+  config.voices.forEach((v) => sel.append(el('option', { value: v.id, textContent: `${v.id.slice(3).replace(/^./, (c) => c.toUpperCase())} · ${v.label.replace(' English', '').replace(', ', ' ')}`, selected: v.id === 'bm_george' })));
+  buildVoiceList();
+  document.querySelectorAll('input[name=template]').forEach((r) => r.addEventListener('change', updatePictures));
+  updatePictures();
+  for (const o of $('images').options) {
+    if (['cloudflare', 'all'].includes(o.value) && !config.cloudflare) { o.disabled = true; o.textContent += ' (not set up)'; }
+  }
+  sel.addEventListener('change', markVoice);
+  await refreshLibrary();
+  const jobs = await api('/api/jobs');
+  const active = jobs.find((j) => j.status === 'running' || j.status === 'queued') || jobs[0];
+  if (active) watch(active);
+}
+
+$('form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  $('err').textContent = '';
+  $('go').disabled = true;
+  try {
+    const f = new FormData($('form'));
+    const job = await api('/api/jobs', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({
+      topic: $('topic').value, template: f.get('template'), length: f.get('length'), images: $('images').value, voice: $('voice').value, notes: $('notes').value, script: $('script').value, scriptMode: f.get('scriptMode') }) });
+    watch(job);
+    $('job').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  } catch (err) { $('err').textContent = err.message; }
+  $('go').disabled = false;
+});
+
+$('script').addEventListener('input', () => { $('scriptModeBox').hidden = !$('script').value.trim(); });
+
+$('cancel').addEventListener('click', () => current && api(`/api/jobs/${current.id}/cancel`, { method: 'POST' }));
+
+function watch(job) {
+  if (source) source.close();
+  clearInterval(timer);
+  current = job;
+  $('jobEmpty').hidden = true; $('jobBody').hidden = false;
+  $('log').textContent = '';
+  $('jobTitle').textContent = job.topic;
+  const tpl = config.templates.find((t) => t.id === job.template);
+  current.pictures = !!tpl?.usesPictures;
+  renderSteps(job.reached || [], job.stage);
+  setStatus(job);
+  const tick = () => {
+    const end = current.endedAt || Date.now(), start = current.startedAt;
+    $('jobMeta').textContent = `${job.template} · ${job.length} · ${job.voice.slice(3)}` + (start ? ` · ${fmt(end - start)}` : '');
+  };
+  tick(); timer = setInterval(tick, 1000);
+  source = new EventSource(`/api/jobs/${job.id}/events`);
+  source.onmessage = (m) => {
+    const ev = JSON.parse(m.data);
+    if (ev.type === 'log') addLog(ev);
+    if (ev.type === 'stage') { current.stage = ev.stage; current.reached = ev.reached; renderSteps(ev.reached, ev.stage); }
+    if (ev.type === 'status') {
+      Object.assign(current, ev);
+      api(`/api/jobs/${job.id}`).then((j) => { Object.assign(current, j); setStatus(j); tick(); });
+      if (ev.status === 'done') { refreshLibrary(); }
+      if (['done', 'failed', 'cancelled'].includes(ev.status)) { source.close(); clearInterval(timer); tick(); }
+    }
+  };
+}
+
+// The picture-maker choice only matters for templates that use AI pictures.
+function updatePictures() {
+  const id = document.querySelector('input[name=template]:checked')?.value;
+  const t = config.templates.find((x) => x.id === id);
+  const sel = $('images');
+  sel.disabled = !t?.usesPictures;
+  sel.title = t?.usesPhotos ? 'This template uses real photos found on Wikimedia Commons' : !t?.usesPictures ? 'This template draws everything itself' : '';
+}
+
+// ---- voice samples ----
+const player = new Audio();
+let playingBtn = null;
+const nice = (id) => id.slice(3).replace(/^./, (c) => c.toUpperCase());
+function resetPlay() { if (playingBtn) { playingBtn.textContent = '▶'; playingBtn.classList.remove('on'); playingBtn.setAttribute('aria-label', playingBtn.dataset.name + ': play sample'); } playingBtn = null; }
+player.addEventListener('ended', resetPlay);
+player.addEventListener('pause', () => { if (player.ended || player.currentTime > 0) resetPlay(); });
+
+function buildVoiceList() {
+  const list = $('vlist');
+  for (const v of config.voices) {
+    const play = el('button', { type: 'button', className: 'play', textContent: '▶' });
+    play.dataset.name = nice(v.id);
+    play.setAttribute('aria-label', `${nice(v.id)}: play sample`);
+    play.addEventListener('click', () => playVoice(v.id, play));
+    const use = el('button', { type: 'button', className: 'ghost use', textContent: 'Use' });
+    use.addEventListener('click', () => { $('voice').value = v.id; markVoice(); });
+    const row = el('div', { className: 'vrow' }, play,
+      el('div', { className: 'who' }, nice(v.id), el('small', { textContent: v.label.replace(' English', '').replace(', ', ' · ') })), use);
+    row.dataset.id = v.id;
+    list.append(row);
+  }
+  markVoice();
+}
+function markVoice() {
+  for (const row of $('vlist').children) {
+    const on = row.dataset.id === $('voice').value;
+    row.classList.toggle('sel', on);
+    row.querySelector('.use').textContent = on ? 'Selected' : 'Use';
+  }
+}
+async function playVoice(id, btn) {
+  $('vmsg').textContent = '';
+  const wasThis = playingBtn === btn;
+  player.pause(); resetPlay();
+  if (wasThis) return;
+  btn.textContent = '…'; btn.classList.add('on');
+  try {
+    player.src = `/api/voices/${id}/sample.wav`;
+    playingBtn = btn;
+    await player.play();
+    btn.textContent = '■'; btn.setAttribute('aria-label', `${btn.dataset.name}: stop`);
+  } catch (e) {
+    resetPlay();
+    $('vmsg').textContent = `Could not play ${nice(id)}: ${e.message}`;
+  }
+}
+
+const fmt = (ms) => { const s = Math.round(ms / 1000); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+
+function renderSteps(reached, now) {
+  const box = $('steps'); box.textContent = '';
+  const live = current && ['running', 'queued'].includes(current.status);
+  for (const [id, label] of STEPS) {
+    if (id === 'pictures' && current && !current.pictures) continue;
+    const cls = id === now && live ? 'now' : reached.includes(id) || now === 'done' || (now === 'verify' && id === 'render') ? 'done' : '';
+    box.append(el('span', { className: `step ${cls}`, textContent: label }));
+  }
+}
+
+function addLog(ev) {
+  const log = $('log');
+  const stick = log.scrollTop + log.clientHeight >= log.scrollHeight - 30;
+  log.append(el('div', { className: ev.kind, textContent: ev.kind === 'tool' ? `${ev.name}  ${ev.text}` : ev.text }));
+  if (stick) log.scrollTop = log.scrollHeight;
+}
+
+function setStatus(j) {
+  const s = $('status');
+  s.className = `status ${j.status}`;
+  const text = { queued: j.queuePosition ? `Waiting in line (${j.queuePosition} ahead)` : 'Waiting to start', running: 'Working. You can leave this page open or come back later.',
+    done: 'Finished.', failed: `Failed. ${j.error || ''}`, cancelled: 'Cancelled.' }[j.status] || '';
+  s.textContent = text;
+  $('cancel').hidden = !['running', 'queued'].includes(j.status);
+  if (j.status === 'done') showVideo(j.slug, j.topic, j.summary);
+}
+
+function showVideo(slug, title, summary) {
+  $('playerCard').hidden = false;
+  $('playerTitle').textContent = title || slug;
+  const v = $('video');
+  v.poster = `/videos/${slug}/video.cover.jpg`;
+  v.src = `/videos/${slug}/video.mp4?t=${Date.now()}`;
+  const plain = (summary || '').replace(/\[([^\]]+)\]\([^)]*\)/g, '$1').replace(/[`*]/g, '').replace(/\s*\(\s*\)/g, '').trim();
+  $('summary').textContent = plain.length > 420 ? plain.slice(0, 420).replace(/\s+\S*$/, '') + '…' : plain;
+  const links = $('links'); links.textContent = '';
+  links.append(
+    el('a', { href: `/videos/${slug}/video.mp4?download`, textContent: 'Download MP4' }),
+    el('a', { href: `/videos/${slug}/video.srt?download`, textContent: 'Subtitles (.srt)' }),
+    el('a', { href: `/videos/${slug}/video.cover.jpg?download`, textContent: 'Cover image' }));
+  $('playerCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+async function refreshLibrary() {
+  const list = await api('/api/videos');
+  const grid = $('library'); grid.textContent = '';
+  $('libEmpty').hidden = list.length > 0;
+  for (const v of list) {
+    const thumb = el('div', { className: 'thumb', textContent: v.cover ? '' : '▶' });
+    if (v.cover) thumb.style.backgroundImage = `url(/videos/${v.slug}/video.cover.jpg?v=${Math.round(v.mtime)})`;
+    const btn = el('button', { className: 'vid', type: 'button' }, thumb,
+      el('div', { className: 't' }, v.title, el('small', { textContent: new Date(v.mtime).toLocaleDateString() + ` · ${(v.bytes / 1048576).toFixed(1)} MB` })));
+    btn.addEventListener('click', () => showVideo(v.slug, v.title, ''));
+    grid.append(btn);
+  }
+}
+
+init().catch((e) => { $('err').textContent = `Could not load: ${e.message}`; });
+</script>
+</body>
+</html>
