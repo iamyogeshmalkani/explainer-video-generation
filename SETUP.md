@@ -20,6 +20,16 @@ In every new terminal, from the repository root:
 . ./env.sh          # points explainroo at ffmpeg and adds the `explainroo` command
 ```
 
+### Optional: pictures made on your Mac (free)
+
+```bash
+sh setup-local-images.sh     # installs mflux and downloads Z-Image-Turbo, 4-bit (about 6 GB)
+```
+
+Then `explainroo image <project> <name> "<what to draw>" --model local`, or
+`node scripts/shot-images.mjs <project> --local` inside a story-shots video. It needs
+Apple Silicon and 16 GB of memory; a picture takes about 2 minutes at 576x1024.
+
 ## 2. Make a video
 
 ```bash
