@@ -1,0 +1,17 @@
+{
+  "title": "Netflix Architecture: the app and its servers",
+  "theme": "look.json",
+  "size": "9:16",
+  "voice": "af_heart",
+  "pace": 1.1,
+  "music": { "style": "tech", "volume": 0.45 },
+  "sfx": true,
+  "captions": false,
+  "camera": "still",
+  "motionBlur": false,
+  "cover": 1,
+  "watermark": false,
+  "fonts": [
+    { "family": "Outfit", "src": "assets/fonts/Outfit-800-latin.woff2", "weight": 800 }
+  ]
+}

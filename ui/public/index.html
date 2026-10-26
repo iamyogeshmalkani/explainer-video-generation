@@ -87,6 +87,39 @@
   .links a { color: var(--gold); font-size: 13px; text-decoration: none; border: 1px solid #4a3f24; border-radius: 8px; padding: 6px 11px; }
   .links a:hover { background: #2a2619; }
   .summary { color: var(--muted); font-size: 13.5px; max-width: 420px; text-align: center; }
+  .vcell { display: flex; flex-direction: column; gap: 6px; }
+  .vcell .edit { padding: 6px 10px; font-size: 12.5px; }
+  .editor { max-width: 1240px; margin: 0 auto 24px; padding: 0 32px; }
+  @media (max-width: 960px) { .editor { padding: 0 16px; } }
+  .edhead { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
+  .edhead h3 { margin: 0; font-size: 17px; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+  .tabs button { background: transparent; border: 1px solid var(--line); color: var(--muted); padding: 8px 15px; border-radius: 99px; font-size: 13.5px; }
+  .tabs button:hover { color: var(--text); }
+  .tabs button.on { background: var(--gold); color: var(--gold-ink); border-color: var(--gold); font-weight: 600; }
+  textarea.mono { font: 13.5px/1.65 ui-monospace, SFMono-Regular, Menlo, monospace; min-height: 340px; }
+  .edcheck { font-size: 13px; margin-top: 8px; min-height: 20px; }
+  .edcheck.bad { color: var(--red); } .edcheck.ok { color: var(--green); } .edcheck .warn { color: var(--gold); display: block; }
+  .edcheck .bad { color: var(--red); display: block; }
+  .edbar { display: flex; gap: 10px; align-items: center; justify-content: flex-end; margin-top: 20px; flex-wrap: wrap; }
+  .edbar .msg { margin-right: auto; font-size: 13px; color: var(--muted); }
+  .edbar .msg.bad { color: var(--red); }
+  .edbar .primary { width: auto; margin: 0; padding: 11px 20px; }
+  .setgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 22px; }
+  @media (max-width: 700px) { .setgrid { grid-template-columns: 1fr; } }
+  .setgrid .full { grid-column: 1 / -1; }
+  .rangeval { display: flex; align-items: center; gap: 10px; }
+  .rangeval input[type=range] { flex: 1; accent-color: var(--gold); }
+  .rangeval b { min-width: 44px; text-align: right; font-weight: 600; font-size: 13.5px; }
+  .inline { display: flex; gap: 8px; align-items: center; }
+  .inline select { flex: 1; }
+  .inline .play { width: 38px; height: 38px; padding: 0; border-radius: 50%; background: var(--panel-2); border: 1px solid var(--line); color: var(--text); flex: none; }
+  .pics { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 12px; }
+  .pic { background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .pic img { display: block; width: 100%; aspect-ratio: 3 / 4; object-fit: cover; background: #000; }
+  .pic .cap { padding: 8px; font-size: 12.5px; display: grid; gap: 6px; }
+  .pic .cap b { font-weight: 600; }
+  .pic button { padding: 5px 8px; font-size: 12px; }
   .lib { max-width: 1240px; margin: 0 auto; padding: 0 32px 60px; }
   @media (max-width: 960px) { .lib { padding: 0 16px 50px; } }
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
@@ -176,6 +209,65 @@
   </div>
 </main>
 
+<section class="editor" id="editorWrap" hidden>
+  <div class="card" id="editor">
+    <div class="edhead">
+      <div><h2 style="margin:0 0 6px">Edit video</h2><h3 id="edName"></h3></div>
+      <button class="ghost" id="edClose" type="button">Close</button>
+    </div>
+    <div class="tabs" role="tablist">
+      <button type="button" role="tab" data-tab="script" class="on">Script</button>
+      <button type="button" role="tab" data-tab="settings">Settings</button>
+      <button type="button" role="tab" data-tab="pictures">Pictures</button>
+      <button type="button" role="tab" data-tab="ask">Ask Claude</button>
+    </div>
+
+    <div class="pane" id="pane-script">
+      <textarea id="edScript" class="mono" spellcheck="false" aria-label="Script"></textarea>
+      <div class="edcheck" id="edCheck" role="status"></div>
+      <p class="hint">Change the words as you like. Keep each <code>[#s1]</code>-style marker: the pictures wait for it. <code>[loud]words[/loud]</code> makes the voice stronger on those words, <code>{Shown|spoken}</code> fixes a pronunciation, and lines starting with <code>&gt;</code> are notes that are not spoken. Only the scenes whose words changed are voiced again.</p>
+    </div>
+
+    <div class="pane" id="pane-settings" hidden>
+      <div class="setgrid">
+        <label class="field full"><span>Title</span><input type="text" id="setTitle" maxlength="120"></label>
+        <div class="field"><span style="display:block;font-size:13px;color:var(--muted);margin-bottom:6px">Voice</span>
+          <div class="inline"><select id="setVoice"></select><button type="button" class="play" id="setVoicePlay" aria-label="Play a sample of this voice">▶</button></div>
+          <small class="hint" id="setVoiceNote"></small>
+        </div>
+        <div class="field"><span style="display:block;font-size:13px;color:var(--muted);margin-bottom:6px">Speed of the video</span>
+          <div class="rangeval"><input type="range" id="setPace" min="0.8" max="1.4" step="0.05"><b id="setPaceVal"></b></div></div>
+        <div class="field"><span style="display:block;font-size:13px;color:var(--muted);margin-bottom:6px">Music</span>
+          <div class="inline"><select id="setMusicStyle"></select></div>
+          <label style="display:flex;gap:8px;align-items:center;margin-top:8px;font-size:13px;color:var(--muted)"><input type="checkbox" id="setMusicOn"> Music on</label></div>
+        <div class="field"><span style="display:block;font-size:13px;color:var(--muted);margin-bottom:6px">Music volume</span>
+          <div class="rangeval"><input type="range" id="setMusicVol" min="0" max="1" step="0.05"><b id="setMusicVolVal"></b></div></div>
+        <div class="field"><span style="display:block;font-size:13px;color:var(--muted);margin-bottom:6px">Voice emphasis on <code>[loud]</code> words (decibels)</span>
+          <div class="rangeval"><input type="range" id="setEmph" min="0" max="9" step="1"><b id="setEmphVal"></b></div></div>
+      </div>
+    </div>
+
+    <div class="pane" id="pane-pictures" hidden>
+      <div class="pics" id="edPics"></div>
+      <p class="hint" id="edPicsHint">Replace a picture with one of your own (JPEG, PNG or WebP), or ask Claude to make a new one. The undo button brings the old picture back. If a replaced photo came from Wikimedia Commons, it is taken out of the credits.</p>
+    </div>
+
+    <div class="pane" id="pane-ask" hidden>
+      <label class="field"><span>What should change?</span>
+        <textarea id="edAsk" maxlength="3000" placeholder="e.g. Make the opening hook stronger. Or: Redo picture shot05 as a sunrise over the mountains. Or: Add a part about the 2008 crisis after the third scene."></textarea></label>
+      <p class="hint">Claude edits this video only, keeping the rest, then checks and re-renders it. Any changes you made on the other tabs are saved first. This uses your Claude Code plan and usually takes 3 to 10 minutes.</p>
+      <button type="button" class="primary" id="edAskGo" style="width:auto">Apply with Claude</button>
+    </div>
+
+    <div class="edbar">
+      <span class="msg" id="edMsg" role="status"></span>
+      <button type="button" class="ghost" id="edUndo">Undo last change</button>
+      <button type="button" class="ghost" id="edSave">Save</button>
+      <button type="button" class="primary" id="edRender">Save and re-render</button>
+    </div>
+  </div>
+</section>
+
 <section class="lib">
   <div class="card">
     <h2>Library</h2>
@@ -187,7 +279,7 @@
 <script>
 const $ = (id) => document.getElementById(id);
 const STEPS = [['research', 'Research'], ['script', 'Script'], ['voice', 'Narration'], ['pictures', 'Pictures'], ['scenes', 'Scenes'], ['review', 'Review'], ['render', 'Render']];
-let config = null, current = null, source = null, timer = null;
+let config = null, current = null, source = null, timer = null, playerSlug = null;
 
 const api = async (url, opts) => {
   const r = await fetch(url, opts);
@@ -246,29 +338,166 @@ function watch(job) {
   current = job;
   $('jobEmpty').hidden = true; $('jobBody').hidden = false;
   $('log').textContent = '';
-  $('jobTitle').textContent = job.topic;
+  $('jobTitle').textContent = job.kind === 'rerender' ? `Re-render: ${job.topic}` : job.kind === 'edit' ? `Edit: ${job.topic}` : job.topic;
   const tpl = config.templates.find((t) => t.id === job.template);
   current.pictures = !!tpl?.usesPictures;
   renderSteps(job.reached || [], job.stage);
   setStatus(job);
   const tick = () => {
     const end = current.endedAt || Date.now(), start = current.startedAt;
-    $('jobMeta').textContent = `${job.template} · ${job.length} · ${job.voice.slice(3)}` + (start ? ` · ${fmt(end - start)}` : '');
+    $('jobMeta').textContent = (job.kind === 'rerender' ? 're-render' : job.kind === 'edit' ? 'edit with Claude' : `${job.template} · ${job.length} · ${(job.voice || '').slice(3)}`) + (start ? ` · ${fmt(end - start)}` : '');
   };
   tick(); timer = setInterval(tick, 1000);
-  source = new EventSource(`/api/jobs/${job.id}/events`);
+  const jobId = job.id;
+  source = new EventSource(`/api/jobs/${jobId}/events`);
   source.onmessage = (m) => {
     const ev = JSON.parse(m.data);
     if (ev.type === 'log') addLog(ev);
     if (ev.type === 'stage') { current.stage = ev.stage; current.reached = ev.reached; renderSteps(ev.reached, ev.stage); }
     if (ev.type === 'status') {
-      Object.assign(current, ev);
-      api(`/api/jobs/${job.id}`).then((j) => { Object.assign(current, j); setStatus(j); tick(); });
-      if (ev.status === 'done') { refreshLibrary(); }
+      // an event's own `id` is its number in the log, never the job's id
+      const { id: _eventNumber, type: _type, ...rest } = ev;
+      Object.assign(current, rest);
+      api(`/api/jobs/${jobId}`).then((j) => { Object.assign(current, j); setStatus(j); tick(); }).catch(() => {});
+      if (ev.status === 'done') { refreshLibrary(); if (ed && ed.slug === job.slug && !editorDirty()) openEditor(ed.slug, true); }
       if (['done', 'failed', 'cancelled'].includes(ev.status)) { source.close(); clearInterval(timer); tick(); }
     }
   };
 }
+
+// ---- the editor ----
+let ed = null;
+const TABS = ['script', 'settings', 'pictures', 'ask'];
+function switchTab(name) {
+  for (const t of TABS) { $(`pane-${t}`).hidden = t !== name; }
+  document.querySelectorAll('.tabs button').forEach((b) => b.classList.toggle('on', b.dataset.tab === name));
+}
+document.querySelectorAll('.tabs button').forEach((b) => b.addEventListener('click', () => switchTab(b.dataset.tab)));
+const edMsg = (text, bad) => { $('edMsg').textContent = text; $('edMsg').className = `msg${bad ? ' bad' : ''}`; };
+
+function readSettingsForm() {
+  return { title: $('setTitle').value.trim(), voice: $('setVoice').disabled ? undefined : $('setVoice').value, pace: Number($('setPace').value),
+    musicOn: $('setMusicOn').checked, musicStyle: $('setMusicStyle').value, musicVolume: Number($('setMusicVol').value), emphasisDb: Number($('setEmph').value) };
+}
+function editorDirty() { return !!ed && ($('edScript').value !== ed.script0 || JSON.stringify(readSettingsForm()) !== ed.set0); }
+function showRangeValues() {
+  $('setPaceVal').textContent = `${Number($('setPace').value).toFixed(2)}×`;
+  $('setMusicVolVal').textContent = `${Math.round(Number($('setMusicVol').value) * 100)}%`;
+  $('setEmphVal').textContent = `+${$('setEmph').value} dB`;
+  $('setMusicStyle').disabled = $('setMusicVol').disabled = !$('setMusicOn').checked;
+}
+['setPace', 'setMusicVol', 'setEmph', 'setMusicOn'].forEach((id) => $(id).addEventListener('input', showRangeValues));
+
+async function openEditor(slug, quiet) {
+  try {
+    const d = await api(`/api/videos/${slug}`);
+    ed = { slug, script0: d.script, set0: '' };
+    $('editorWrap').hidden = false;
+    $('edName').textContent = d.title;
+    $('edScript').value = d.script;
+    const sv = $('setVoice');
+    sv.textContent = '';
+    config.voices.forEach((v) => sv.append(el('option', { value: v.id, textContent: `${nice(v.id)} · ${v.label.replace(' English', '').replace(', ', ' ')}` })));
+    const st = d.settings;
+    $('setTitle').value = st.title;
+    if (st.voice) sv.value = st.voice;
+    sv.disabled = !st.voice;
+    $('setVoicePlay').disabled = !st.voice;
+    $('setVoiceNote').textContent = st.voiceNote || '';
+    $('setPace').value = st.pace;
+    const ms = $('setMusicStyle');
+    ms.textContent = '';
+    st.musicStyles.forEach((m) => ms.append(el('option', { value: m, textContent: m })));
+    ms.value = st.musicStyle;
+    $('setMusicOn').checked = st.musicOn;
+    $('setMusicVol').value = st.musicVolume;
+    $('setEmph').value = st.emphasisDb;
+    showRangeValues();
+    ed.set0 = JSON.stringify(readSettingsForm());
+    renderPics(d.pictures);
+    $('edUndo').disabled = !d.canUndo;
+    const busy = d.busy;
+    for (const id of ['edSave', 'edRender', 'edAskGo']) $(id).disabled = busy;
+    edMsg(busy ? 'This video is being worked on right now. Editing is back when it finishes.' : '', false);
+    $('edPicsHint').hidden = false;
+    if (!quiet) { switchTab('script'); $('editorWrap').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    runCheck();
+  } catch (e) { alert(`Could not open the editor: ${e.message}`); }
+}
+
+function renderPics(list) {
+  const box = $('edPics');
+  box.textContent = '';
+  if (!list.length) { box.append(el('p', { className: 'hint', textContent: 'This video has no separate pictures (everything is drawn by the template).' })); return; }
+  for (const p of list) {
+    const file = el('input', { type: 'file', accept: 'image/jpeg,image/png,image/webp', hidden: true });
+    file.addEventListener('change', async () => {
+      const f = file.files[0];
+      if (!f) return;
+      edMsg(`Replacing ${p.base}…`);
+      try {
+        const r = await fetch(`/api/videos/${ed.slug}/assets/${p.base}`, { method: 'PUT', headers: { 'content-type': 'application/octet-stream' }, body: f });
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(data.error || `Failed (${r.status})`);
+        renderPics(data.pictures);
+        $('edUndo').disabled = false;
+        edMsg(`Replaced ${p.base}. Use "Save and re-render" to see it in the video.`);
+      } catch (e) { edMsg(e.message, true); }
+      file.value = '';
+    });
+    const redo = el('button', { type: 'button', className: 'ghost', textContent: 'Redo with Claude', onclick: () => { $('edAsk').value = `Redo picture ${p.base}: `; switchTab('ask'); $('edAsk').focus(); } });
+    box.append(el('div', { className: 'pic' }, el('img', { src: `/videos/${ed.slug}/thumb/${p.name}?v=${Math.round(p.mtime)}`, alt: p.base }),
+      el('div', { className: 'cap' }, el('b', { textContent: p.base }), file, el('button', { type: 'button', className: 'ghost', textContent: 'Replace…', onclick: () => file.click() }), redo)));
+  }
+}
+
+let checkTimer = null;
+async function runCheck() {
+  if (!ed) return;
+  const box = $('edCheck');
+  try {
+    const r = await api(`/api/videos/${ed.slug}/script/check`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ text: $('edScript').value }) });
+    box.textContent = '';
+    box.className = `edcheck ${r.ok ? 'ok' : 'bad'}`;
+    box.append(document.createTextNode(r.ok ? `${r.words} words, about ${r.seconds} seconds. The script reads fine.` : 'This script cannot be used yet:'));
+    for (const m of r.errors) box.append(el('span', { className: 'bad', textContent: m }));
+    for (const m of r.warnings) box.append(el('span', { className: 'warn', textContent: m }));
+  } catch (e) { box.textContent = e.message; box.className = 'edcheck bad'; }
+}
+$('edScript').addEventListener('input', () => { clearTimeout(checkTimer); checkTimer = setTimeout(runCheck, 400); });
+
+async function saveAll() {
+  const put = (url, body) => api(url, { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+  edMsg('Saving…');
+  try {
+    if ($('edScript').value !== ed.script0) { await put(`/api/videos/${ed.slug}/script`, { text: $('edScript').value }); ed.script0 = $('edScript').value; }
+    const now = JSON.stringify(readSettingsForm());
+    if (now !== ed.set0) { const body = readSettingsForm(); if (body.voice === undefined) delete body.voice; await put(`/api/videos/${ed.slug}/settings`, body); ed.set0 = now; $('edName').textContent = body.title; }
+    $('edUndo').disabled = false;
+    edMsg('Saved.');
+    return true;
+  } catch (e) { edMsg(e.message, true); runCheck(); return false; }
+}
+$('edSave').addEventListener('click', saveAll);
+$('edRender').addEventListener('click', async () => {
+  if (!(await saveAll())) return;
+  try { const job = await api(`/api/videos/${ed.slug}/rerender`, { method: 'POST' }); watch(job); $('job').scrollIntoView({ behavior: 'smooth', block: 'nearest' }); edMsg('Re-rendering. Progress is on the right.'); } catch (e) { edMsg(e.message, true); }
+});
+$('edAskGo').addEventListener('click', async () => {
+  const text = $('edAsk').value.trim();
+  if (text.length < 5) { edMsg('Say what should change.', true); return; }
+  if (!(await saveAll())) return;
+  try { const job = await api(`/api/videos/${ed.slug}/edit`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ instruction: text }) }); watch(job); $('job').scrollIntoView({ behavior: 'smooth', block: 'nearest' }); edMsg('Claude is working on it. Progress is on the right.'); $('edAsk').value = ''; } catch (e) { edMsg(e.message, true); }
+});
+$('edUndo').addEventListener('click', async () => {
+  try { const r = await api(`/api/videos/${ed.slug}/restore`, { method: 'POST' }); await openEditor(ed.slug, true); edMsg(`Undone (${r.restored.length} file${r.restored.length === 1 ? '' : 's'} restored). Use "Save and re-render" to rebuild the video.`); } catch (e) { edMsg(e.message, true); }
+});
+$('edClose').addEventListener('click', () => {
+  if (editorDirty() && !confirm('You have changes that are not saved. Close anyway?')) return;
+  ed = null; $('editorWrap').hidden = true;
+});
+$('setVoicePlay').addEventListener('click', () => { const b = $('setVoicePlay'); b.dataset.name = nice($('setVoice').value); playVoice($('setVoice').value, b); });
+window.addEventListener('beforeunload', (e) => { if (editorDirty()) { e.preventDefault(); e.returnValue = ''; } });
 
 // The picture-maker choice only matters for templates that use AI pictures.
 function updatePictures() {
@@ -332,8 +561,9 @@ const fmt = (ms) => { const s = Math.round(ms / 1000); return `${Math.floor(s / 
 function renderSteps(reached, now) {
   const box = $('steps'); box.textContent = '';
   const live = current && ['running', 'queued'].includes(current.status);
-  for (const [id, label] of STEPS) {
-    if (id === 'pictures' && current && !current.pictures) continue;
+  const steps = current?.kind === 'rerender' ? [['voice', 'Narration'], ['review', 'Check'], ['render', 'Render']] : STEPS;
+  for (const [id, label] of steps) {
+    if (id === 'pictures' && current && current.kind === 'create' && !current.pictures) continue;
     const cls = id === now && live ? 'now' : reached.includes(id) || now === 'done' || (now === 'verify' && id === 'render') ? 'done' : '';
     box.append(el('span', { className: `step ${cls}`, textContent: label }));
   }
@@ -365,7 +595,9 @@ function showVideo(slug, title, summary) {
   const plain = (summary || '').replace(/\[([^\]]+)\]\([^)]*\)/g, '$1').replace(/[`*]/g, '').replace(/\s*\(\s*\)/g, '').trim();
   $('summary').textContent = plain.length > 420 ? plain.slice(0, 420).replace(/\s+\S*$/, '') + '…' : plain;
   const links = $('links'); links.textContent = '';
+  playerSlug = slug;
   links.append(
+    el('button', { className: 'ghost', type: 'button', textContent: 'Edit this video', onclick: () => openEditor(slug) }),
     el('a', { href: `/videos/${slug}/video.mp4?download`, textContent: 'Download MP4' }),
     el('a', { href: `/videos/${slug}/video.srt?download`, textContent: 'Subtitles (.srt)' }),
     el('a', { href: `/videos/${slug}/video.cover.jpg?download`, textContent: 'Cover image' }));
@@ -382,7 +614,9 @@ async function refreshLibrary() {
     const btn = el('button', { className: 'vid', type: 'button' }, thumb,
       el('div', { className: 't' }, v.title, el('small', { textContent: new Date(v.mtime).toLocaleDateString() + ` · ${(v.bytes / 1048576).toFixed(1)} MB` })));
     btn.addEventListener('click', () => showVideo(v.slug, v.title, ''));
-    grid.append(btn);
+    const edit = el('button', { className: 'ghost edit', type: 'button', textContent: 'Edit' });
+    edit.addEventListener('click', () => openEditor(v.slug));
+    grid.append(el('div', { className: 'vcell' }, btn, edit));
   }
 }
 

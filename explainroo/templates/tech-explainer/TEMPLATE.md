@@ -22,6 +22,12 @@ A 39 second vertical video (720 x 1280, 25 fps, about 100 spoken words, loudness
   bounce in, followed by lines such as "Architectural / Design / Pattern" blurring in.
 - **Motifs**: an app card with a notch, a code card with pink keys, an icon next to a
   label (database, server, lock), dashed lines between boxes, a finger tapping.
+- **Pictures and connections**: the ideas are real pictures (`k.pic`) cut out with a white edge, not
+  boxes. One picture per idea, a short label under it, and dashed `k.link` lines the code draws between
+  them. Prefer side by side or a small triangle over a tall stack, so links have room.
+- **Stickers**: the background stays plain, so die-cut stickers (`k.sticker`) add the
+  fun: a colored badge with a white edge and a tilt that pops in as the idea is named.
+  One or two per screen, at a corner or in a gap. The sample video shows how.
 - **Words**: plain and short, one idea per sentence, about 2.6 words a second.
 
 ## Steps
@@ -29,14 +35,18 @@ A 39 second vertical video (720 x 1280, 25 fps, about 100 spoken words, loudness
 1. **Pick one idea.** A video explains one thing: one pattern, one request, one bug.
    Write down the 5 to 8 steps a beginner needs, in order. Check every fact; never
    invent a number, a name or a status code.
-2. **Copy the template**: `scripts/new-video.sh tech-explainer <name>`.
+2. **Copy the template**: `scripts/new-video.sh tech-explainer <name>`. Delete the sample pictures in
+   `assets/` that the new video does not use.
 3. **Write `script.md`.** One scene, `story`. 90 to 130 words for 35 to 50 seconds.
    Put `[#s1]`, `[#s2]` ... at the start of each sentence, and extra markers
    (`[#method]`, `[#status]`) where something should appear inside a sentence. Respell
    acronyms and numbers: `{API|A P I}`, `{404|four oh four}`.
 4. **Plan the screens.** One screen per idea, 1 to 4 elements each. Decide what stays
    and what leaves on every marker. Use the same position for the same kind of thing.
-5. **Write `scenes.js`.** One `kit(s)`, then the calls in the order they stack. Give all
+5. **List the pictures in `shots.js` and make them**: one object per picture (a server, a shield, a
+   package), colorful, never white, no text on it. Run `scripts/shot-images.mjs` (see README, Pictures) and
+   open every picture: remake any with gibberish text, a grey background or a cut-off object.
+   Then **write `scenes.js`.** One `kit(s)`, then the calls in the order they stack. Give all
    elements of a screen the same `out`. Keep to the content band (`y` up to about 0.9).
 6. **Voice and check.** `voice`, then `check`. Fix every error. Listen to acronyms.
 7. **Look.** `sheet --every 2`, then `still` at two or three busy moments at full size.
@@ -50,7 +60,9 @@ A 39 second vertical video (720 x 1280, 25 fps, about 100 spoken words, loudness
   never as a paragraph. The narration is not shown as text.
 - Same meaning, same shape: a server is always the server icon, the same box, in the
   same place from one screen to the next.
-- At most 5 elements on a screen. Boxes need room for their links: leave about one box
+- At most 5 elements on a screen, not counting one or two stickers. A sticker matches what the voice
+  says (a shield for "checks who you are"), sits at a corner or in a gap, and never covers a word.
+  Boxes need room for their links: leave about one box
   height between boxes that are joined by a line.
 - Do not claim more than the sources do. Sample code and data must look like examples.
 

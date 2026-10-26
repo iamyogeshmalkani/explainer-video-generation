@@ -7,12 +7,18 @@
 //   k.code(['"status": 200'], { x: .5, y: .5, at: '#s8' });
 //   k.link('app', 'api', { pair: true, at: '#s2' });  // dashed request and response lines
 //   k.tap({ x: .5, y: .3, at: 'press' });
+//   k.pic('server', { id: 'srv', x: .5, y: .3, w: .4, at: '#s2', label: 'Server' });   // a real picture pops in (assets/server.jpg)
+//   k.link('app', 'srv', { pair: true, label: 'API', block: true, at: '#s2' });         // the code draws the connection
+//   k.sticker('rocket', { x: .85, y: .1, at: '#s2', color: 'yellow', rotate: 8 });   // a die-cut sticker pops in
+//   k.sticker('bug', { label: 'BUG!', x: .15, y: .6, shape: 'burst', from: 'slap' });
 //
 // Positions x and y are fractions: x of the safe width, y of the content band
 // (the top part of the safe area; the bottom third stays free for app buttons).
 // Every call takes `at` (seconds, a spoken word or a '#marker') and `out`.
 // Text markup: [text] is a solid accent-colored block with dark text, *text* is accent-colored text.
 // Call the kit's functions in the order you want them stacked (later is on top).
+
+import { pictureFor } from './pic.js';
 
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const lerp = (a, b, p) => a + (b - a) * p;
@@ -184,6 +190,38 @@ const ICONS = {
     ctx.beginPath(); ctx.moveTo(x + s * 0.18, y - s * 0.25); ctx.lineTo(x + s * 0.4, y - s * 0.25); ctx.lineTo(x + s * 0.4, y - s * 0.03); ctx.stroke();
   },
 };
+
+
+// ---------- stickers: die-cut vector badges with a white edge ----------
+
+// Colors a sticker can use. 'accent' and 'key' follow the palette; any '#rrggbb' also works.
+const STICKER_COLORS = {
+  yellow: '#ffd60a', pink: '#ff4fa3', cyan: '#27d3ff', orange: '#ff8a1f', purple: '#a970ff', red: '#ff4d4d', blue: '#3d8bff', white: '#ffffff',
+};
+function stickerColor(c = 'accent') {
+  if (c === 'accent') return COLORS.accent;
+  if (c === 'key') return COLORS.key;
+  if (STICKER_COLORS[c]) return STICKER_COLORS[c];
+  if (/^#[0-9a-f]{6}$/i.test(c)) return c;
+  throw new Error(`sticker color "${c}" must be accent, key, ${Object.keys(STICKER_COLORS).join(', ')} or '#rrggbb'`);
+}
+const luminance = (hex) => { const [r, g, b] = rgb(hex); return (0.299 * r + 0.587 * g + 0.114 * b) / 255; };
+
+// The outline of a sticker shape, centered on 0,0, as a path on ctx. r is the radius (half the width).
+function stickerShape(ctx, shape, r, w = r * 2) {
+  ctx.beginPath();
+  if (shape === 'square') ctx.roundRect(-r, -r, r * 2, r * 2, r * 0.34);
+  else if (shape === 'pill') ctx.roundRect(-w / 2, -r, w, r * 2, r);
+  else if (shape === 'burst') {
+    const n = 14;
+    for (let i = 0; i < n * 2; i++) {
+      const a = (i / (n * 2)) * Math.PI * 2 - Math.PI / 2;
+      const rad = i % 2 ? r * 0.8 : r;
+      ctx[i ? 'lineTo' : 'moveTo'](Math.cos(a) * rad, Math.sin(a) * rad);
+    }
+    ctx.closePath();
+  } else ctx.arc(0, 0, r, 0, Math.PI * 2);
+}
 
 // ---------- the kit ----------
 
@@ -439,11 +477,170 @@ export function kit(s, opts = {}) {
         if (o.label) {
           const mx = A.x + ux * (s0 + s1) / 2; const my = A.y + uy * (s0 + s1) / 2;
           const ls = (o.labelSize ?? 4.2) * u;
+          const txt = o.block ? `[${o.label.toUpperCase()}]` : `*${o.label.toUpperCase()}*`;
           ctx.font = `800 ${ls}px ${FONT}`;
-          const lw = ctx.measureText(o.label.toUpperCase()).width + ls;
+          const lw = richWidth(ctx, txt, ls) + ls;
           ctx.fillStyle = COLORS.bg; ctx.fillRect(mx - lw / 2, my - ls * 0.8, lw, ls * 1.6);
-          rich(ctx, `*${o.label.toUpperCase()}*`, mx, my, ls, { align: 'center' });
+          rich(ctx, txt, mx, my, ls, { align: 'center' });
         }
+      });
+    },
+
+    // A real picture (assets/<name>.png|jpg|webp, made on a plain white background) cut out and given a white die-cut edge.
+    // It pops in on its cue. Its id lets k.link() draw connections between pictures. No box is drawn around it.
+    // o: { id, x, y, at, out, w (fraction of the safe width, .36), label, labelSize, rotate, from, move }
+    //   label: text under the picture, with [block] and *accent* markup
+    //   from:  'pop' (default, overshoots) | 'slap' | 'bottom' | 'top' | 'left' | 'right'
+    // A missing file shows a labelled placeholder, so the layout can be checked before the pictures exist.
+    pic(name, o = {}) {
+      const tilt = ((o.rotate ?? 0) * Math.PI) / 180;
+      const from = o.from ?? 'pop';
+      item({ ...o, pop: false }, (ctx, { life, x, y }) => {
+        const st = pictureFor(s, name);
+        // w is the width of the box the picture must fit in; a tall picture (a phone) is limited to 1.15 times that in height
+        const box = (o.w ?? 0.36) * s.safe.w;
+        const fit = st ? Math.min(box / st.w, (box * 1.15) / st.h) : 1;
+        const pw = st ? st.w * fit : box;
+        const ph = st ? st.h * fit : box;
+        const ls = (o.labelSize ?? 6.4) * u;
+        const lh = o.label ? ls * 1.5 : 0;
+        const H = ph + lh;
+        const local = life.local + (T(o.at ?? 0) <= 0.05 ? 0.7 : 0); // already shown at frame 0 (the cover): start the pop a little in
+        let sc = 1; let dx = 0; let dy = 0; let rot = tilt;
+        if (from === 'slap') {
+          const q = clamp(local / 0.22);
+          sc = lerp(1.6, 1, q * q * (3 - 2 * q));
+          ctx.globalAlpha = clamp(local / 0.08);
+        } else if (from === 'pop') {
+          const q = clamp(local / 0.5);
+          sc = Math.max(0.001, backOut(q));
+          rot = tilt + (1 - clamp(backOut(q), 0, 1)) * -0.35;
+        } else {
+          const e = backOut(clamp(local / 0.6));
+          if (from === 'bottom') dy = (1 - e) * s.H * 0.5;
+          else if (from === 'top') dy = -(1 - e) * s.H * 0.5;
+          else if (from === 'left') dx = -(1 - e) * s.W * 0.8;
+          else dx = (1 - e) * s.W * 0.8;
+        }
+        const idle = clamp(local - 0.5);
+        dy += Math.sin(local * 2.4 + pw) * u * 0.4 * idle;
+        rot += Math.sin(local * 2 + pw) * 0.02 * idle;
+        ctx.save();
+        ctx.translate(dx, dy);
+        ctx.rotate(rot);
+        ctx.scale(sc, sc);
+        ctx.save();
+        ctx.translate(0, -lh / 2);
+        if (st) {
+          ctx.shadowColor = 'rgba(0,0,0,0.55)';
+          ctx.shadowBlur = u * 1.6;
+          ctx.shadowOffsetY = u * 0.6;
+          ctx.drawImage(st.cv, -pw / 2, -ph / 2, pw, ph);
+        } else {
+          roundBox(ctx, 0, 0, pw, ph, u * 2, { stroke: COLORS.accent, lw: Math.max(3, u * 0.4), fill: mixHex(COLORS.accent, COLORS.bg, 0.85) });
+          ctx.fillStyle = COLORS.accent; ctx.font = `800 ${u * 3.4}px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.fillText(`assets/${name}`, 0, 0);
+        }
+        ctx.restore();
+        if (o.label) rich(ctx, o.caps === false ? o.label : o.label.toUpperCase(), 0, ph / 2 + ls * 0.55 - lh / 2 + ls * 0.3, ls, { align: 'center' });
+        ctx.restore();
+        ctx.globalAlpha = 1;
+        if (o.id) reg.set(o.id, { x, y, w: pw * 0.9, h: H }); // the box includes the label, so links start below it
+      });
+    },
+
+    // A die-cut sticker that pops in with a white edge, a soft shadow and a little shine, like one slapped on the screen.
+    // icon: any icon name (explainroo icons <word>), or null for a text-only sticker. label: text on the sticker.
+    // o: { x, y, at, out, size (circle width, in % of the frame), color, ink, shape, rotate, from, label, id, move }
+    //   shape: 'circle' (default) | 'square' | 'burst' (a starburst, good for BUG! or NEW) | 'pill' (text only)
+    //   from:  'pop' (default, overshoots) | 'slap' (lands from big, fast)
+    // Use one or two per screen, in the gaps or at the corners, and keep them off the words.
+    sticker(icon, o = {}) {
+      const color = stickerColor(o.color);
+      const ink = o.ink ?? (luminance(color) > 0.45 ? COLORS.dark : '#ffffff');
+      const label = o.label ? String(o.label).toUpperCase() : '';
+      if (!icon && !label) throw new Error('sticker needs an icon name, a label, or both');
+      if (icon && !s.engine.icons?.[icon]) throw new Error(`sticker icon "${icon}" does not exist. Search with: explainroo icons <word>`);
+      const shape = o.shape ?? (icon ? 'circle' : 'pill');
+      const tilt = ((o.rotate ?? -6) * Math.PI) / 180;
+      const from = o.from ?? 'pop';
+      item({ ...o, pop: false }, (ctx, { life, x, y }) => {
+        const r = ((o.size ?? 17) * u) / 2;
+        const border = Math.max(5, r * 0.13);
+        const ls = icon ? r * 0.5 : r * 0.78;
+        ctx.font = `800 ${ls}px ${FONT}`;
+        const textW = label ? ctx.measureText(label).width : 0;
+        // the icon disc keeps its size; a label under it is a pill that overlaps the bottom edge
+        const parts = [];
+        if (icon) parts.push({ shape, r, cx: 0, cy: 0, w: r * 2, main: true });
+        if (label && icon) parts.push({ shape: 'pill', r: ls * 0.78, cx: 0, cy: r * 0.95, w: textW + ls * 1.3, color: o.labelColor ? stickerColor(o.labelColor) : COLORS.dark, ink: '#ffffff' });
+        if (label && !icon) parts.push({ shape, r: ls * 0.95, cx: 0, cy: 0, w: shape === 'pill' ? textW + ls * 1.5 : Math.max(textW + ls * 1.4, ls * 3), main: true });
+        const wid = Math.max(...parts.map((q) => q.w));
+        const hei = icon && label ? r + parts[1].cy + parts[1].r : parts[0].r * 2;
+        const local = life.local + (T(o.at ?? 0) <= 0.05 ? 0.7 : 0);
+        let sc; let dy = 0; let rot = tilt;
+        if (from === 'slap') {
+          const q = clamp(local / 0.22);
+          sc = lerp(1.7, 1, q * q * (3 - 2 * q));
+          rot = tilt + (1 - q) * 0.35;
+          ctx.globalAlpha = clamp(local / 0.08);
+        } else {
+          const q = clamp(local / 0.5);
+          sc = Math.max(0.001, backOut(q));
+          rot = tilt + (1 - clamp(backOut(q), 0, 1)) * -0.5;
+        }
+        const idle = clamp(local - 0.5);
+        dy = Math.sin(local * 2.6) * u * 0.45 * idle;
+        rot += Math.sin(local * 2.1) * 0.025 * idle;
+        ctx.save();
+        ctx.translate(0, dy);
+        ctx.rotate(rot);
+        ctx.scale(sc, sc);
+        // white die-cut edge for the whole sticker first (with the shadow), then the colored shapes
+        ctx.shadowColor = 'rgba(0,0,0,0.5)';
+        ctx.shadowBlur = u * 1.4;
+        ctx.shadowOffsetY = u * 0.55;
+        ctx.fillStyle = '#ffffff';
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineJoin = 'round';
+        ctx.lineWidth = border * 2 + (shape === 'burst' ? r * 0.1 : 0);
+        for (const q of parts) { ctx.save(); ctx.translate(q.cx, q.cy); stickerShape(ctx, q.shape, q.r, q.w); ctx.stroke(); ctx.fill(); ctx.restore(); }
+        ctx.shadowColor = 'transparent';
+        for (const q of parts) {
+          ctx.save(); ctx.translate(q.cx, q.cy);
+          stickerShape(ctx, q.shape, q.r, q.w);
+          ctx.fillStyle = q.color ?? color; ctx.strokeStyle = q.color ?? color;
+          ctx.lineWidth = q.shape === 'burst' ? r * 0.1 : 1;
+          ctx.fill(); ctx.stroke();
+          if (q.main && local > 0.35 && local < 1.0) { // one shine sweeping across, once
+            ctx.clip();
+            const sx = lerp(-q.w, q.w, clamp((local - 0.35) / 0.6));
+            const g = ctx.createLinearGradient(sx - q.r * 0.5, -q.r, sx + q.r * 0.5, q.r);
+            g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(0.5, 'rgba(255,255,255,0.55)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+            ctx.fillStyle = g; ctx.fillRect(-q.w, -q.r * 1.2, q.w * 2, q.r * 2.4);
+          }
+          ctx.restore();
+        }
+        // the icon (a stroked 24 x 24 drawing) and the label
+        if (icon) {
+          const is = r * (label ? 1.15 : 1.2);
+          ctx.save();
+          ctx.translate(-is / 2, -is / 2 - (label ? r * 0.02 : 0));
+          ctx.scale(is / 24, is / 24);
+          ctx.strokeStyle = ink; ctx.lineWidth = 2.3; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+          for (const d of s.engine.icons[icon]) ctx.stroke(new Path2D(d));
+          ctx.restore();
+        }
+        if (label) {
+          const q = parts[parts.length - 1];
+          ctx.font = `800 ${ls}px ${FONT}`;
+          ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.fillStyle = q.ink ?? ink;
+          ctx.fillText(label, q.cx, q.cy + ls * 0.04);
+        }
+        ctx.restore();
+        ctx.globalAlpha = 1;
+        if (o.id) reg.set(o.id, { x, y, w: wid, h: hei });
       });
     },
 

@@ -31,6 +31,21 @@ Jobs run one at a time; others wait in line. **Cancel** stops the agent.
 | Style notes | Free text, for example "muted, mature colors" or "serious tone". |
 | Your script, outline or sources | Optional. Paste your own narration and choose **As the script** (kept word for word; it is only split into scenes and marked up, and the length setting is ignored) or **As an outline** (key points, facts or links that the script must cover; links are read for facts). Leave it empty and the script is written for you. |
 
+## Editing a finished video
+
+Every video in the **Library** has an **Edit** button (the player has one too). The editor has four tabs:
+
+| Tab | What you can do |
+|---|---|
+| Script | Change the words. A live check tells you the word count, about how long it runs, and refuses a script that would break the video (a `[#marker]` that the pictures wait for is missing, a tag is not closed). Only the scenes whose words changed are voiced again. |
+| Settings | Title, voice (with a sample button), speed, music style and volume, and how much louder the `[loud]` words are. |
+| Pictures | Thumbnails of the video's pictures. **Replace...** swaps one for a picture of your own (JPEG, PNG or WebP, up to 25 MB). **Redo with Claude** jumps to the Ask Claude tab with that picture named. A real photo you replace is taken out of the credits. |
+| Ask Claude | Describe a change in your own words ("make the hook stronger", "redo picture shot05 as a sunrise", "add a part about 2008"). Claude edits this video only, keeping the rest, then checks and re-renders it. |
+
+**Save** keeps your changes; **Save and re-render** also rebuilds the video without the agent (voice for changed scenes, check, render, verify), which is quick.
+**Undo last change** goes back one step: every save, picture swap and Ask Claude request first keeps a copy of the files it may change in
+`build/edit-backups/` (the last 15). The previous render is kept as `out/video.prev.mp4`. A video that is being worked on cannot be edited until it finishes.
+
 ## About the Perchance window
 
 Perchance has no API, so explainroo opens a normal Chrome window with its own profile (`~/.cache/explainroo/chrome-perchance`;

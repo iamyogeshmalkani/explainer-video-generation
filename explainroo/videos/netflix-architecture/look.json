@@ -1,0 +1,17 @@
+{
+  "extends": "midnight",
+  "name": "tech-explainer",
+  "dark": true,
+  "bg": "#1a1a1a",
+  "ink": "#ffffff",
+  "muted": "#9aa39d",
+  "accent": "green",
+  "colors": { "green": "#e50914", "pink": "#b3b3b3" },
+  "fonts": {
+    "display": { "family": "Outfit", "weight": 800 },
+    "body": { "family": "Outfit", "weight": 800 }
+  },
+  "background": "plain",
+  "music": "tech",
+  "transition": "cut"
+}
