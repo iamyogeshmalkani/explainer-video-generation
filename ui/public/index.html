@@ -54,6 +54,7 @@
   details.voices summary::-webkit-details-marker { display: none; }
   details.voices summary::before { content: '▸ '; } details.voices[open] summary::before { content: '▾ '; }
   .vlist { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 8px; margin-top: 10px; }
+  .vhead { grid-column: 1 / -1; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; margin-top: 4px; }
   .vrow { display: flex; align-items: center; gap: 10px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 7px 10px; }
   .vrow.sel { border-color: var(--gold); background: #2a2619; }
   .vrow .play { width: 30px; height: 30px; padding: 0; border-radius: 50%; background: var(--panel); border: 1px solid var(--line); color: var(--text); font-size: 11px; flex: none; }
@@ -136,18 +137,20 @@
 <main>
   <form class="card" id="form" autocomplete="off">
     <h2>New video</h2>
-    <label class="field"><span>Topic</span>
-      <textarea id="topic" placeholder="e.g. The richest person in history, or How the shipping container changed trade" maxlength="400" required></textarea>
-    </label>
-    <label class="field"><span>Your script, outline or sources <em style="font-style:normal;opacity:.7">(optional)</em></span>
-      <textarea id="script" maxlength="8000" placeholder="Paste your own narration to use as written, or key points, facts and links you want covered. Leave empty to have the script written for you."></textarea>
-    </label>
-    <div class="field" id="scriptModeBox" style="margin-bottom:18px" hidden><span style="display:block;font-size:13px;color:var(--muted);margin-bottom:6px">Use my text</span>
-      <div class="seg">
-        <label><input type="radio" name="scriptMode" value="exact" checked><span>As the script</span></label>
-        <label><input type="radio" name="scriptMode" value="outline"><span>As an outline</span></label>
+    <div class="field" style="margin-bottom:12px"><span style="display:block;font-size:13px;color:var(--muted);margin-bottom:6px">Script</span>
+      <div class="seg" id="scriptModes">
+        <label><input type="radio" name="scriptMode" value="auto" checked><span>Write it for me</span></label>
+        <label><input type="radio" name="scriptMode" value="exact"><span>I have a script</span></label>
+        <label><input type="radio" name="scriptMode" value="outline"><span>I have an outline</span></label>
       </div>
     </div>
+    <label class="field"><span id="topicLabel">Topic</span>
+      <textarea id="topic" placeholder="e.g. The richest person in history, or How the shipping container changed trade" maxlength="400" required></textarea>
+    </label>
+    <label class="field" id="scriptBox" hidden><span id="scriptLabel">Your script</span>
+      <textarea id="script" maxlength="8000"></textarea>
+      <small class="hint" id="scriptHint"></small>
+    </label>
     <div><span style="display:block;font-size:13px;color:var(--muted);margin-bottom:8px">Template</span></div>
     <div class="templates" id="templates" role="radiogroup" aria-label="Template"></div>
     <div class="row">
@@ -300,7 +303,11 @@ async function init() {
     box.append(label);
   });
   const sel = $('voice');
-  config.voices.forEach((v) => sel.append(el('option', { value: v.id, textContent: `${v.id.slice(3).replace(/^./, (c) => c.toUpperCase())} · ${v.label.replace(' English', '').replace(', ', ' ')}`, selected: v.id === 'bm_george' })));
+  for (const [lang, name] of voiceLanguages()) {
+    const group = el('optgroup', { label: name });
+    config.voices.filter((v) => v.language === lang).forEach((v) => group.append(el('option', { value: v.id, textContent: voiceText(v), selected: v.id === 'bm_george' })));
+    sel.append(group);
+  }
   buildVoiceList();
   document.querySelectorAll('input[name=template]').forEach((r) => r.addEventListener('change', updatePictures));
   updatePictures();
@@ -320,15 +327,30 @@ $('form').addEventListener('submit', async (e) => {
   $('go').disabled = true;
   try {
     const f = new FormData($('form'));
+    if (f.get('scriptMode') !== 'auto' && !$('script').value.trim()) throw new Error(f.get('scriptMode') === 'exact' ? 'Paste your script first.' : 'Paste your outline first, or pick "Write it for me".');
     const job = await api('/api/jobs', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({
-      topic: $('topic').value, template: f.get('template'), length: f.get('length'), images: $('images').value, voice: $('voice').value, notes: $('notes').value, script: $('script').value, scriptMode: f.get('scriptMode') }) });
+      topic: $('topic').value, template: f.get('template'), length: f.get('length'), images: $('images').value, voice: $('voice').value, notes: $('notes').value, script: f.get('scriptMode') === 'auto' ? '' : $('script').value, scriptMode: f.get('scriptMode') }) });
     watch(job);
     $('job').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   } catch (err) { $('err').textContent = err.message; }
   $('go').disabled = false;
 });
 
-$('script').addEventListener('input', () => { $('scriptModeBox').hidden = !$('script').value.trim(); });
+// "I have a script" skips research and script writing: the video starts at the narration.
+const SCRIPT_MODES = {
+  auto: { box: false },
+  exact: { box: true, label: 'Your script', placeholder: 'Paste the narration exactly as it should be spoken, in the language of the voice you picked. It is used as written.', hint: 'Skips research and script writing: the video starts at the narration. Plain text is fine, no markers needed. About 150 words make a minute. You can still edit it afterwards.', topic: 'Title or topic (optional)', topicRequired: false },
+  outline: { box: true, label: 'Your outline, key points or links', placeholder: 'Key points, facts or links you want covered. The script is written from them.', hint: 'The script is still written for you, around your points.', topic: 'Topic', topicRequired: true },
+};
+function updateScriptMode() {
+  const m = SCRIPT_MODES[new FormData($('form')).get('scriptMode')] || SCRIPT_MODES.auto;
+  $('scriptBox').hidden = !m.box;
+  $('topic').required = m.topicRequired !== false;
+  $('topicLabel').textContent = m.topic || 'Topic';
+  if (m.box) { $('scriptLabel').textContent = m.label; $('script').placeholder = m.placeholder; $('scriptHint').textContent = m.hint; }
+}
+document.querySelectorAll('input[name=scriptMode]').forEach((r) => r.addEventListener('change', updateScriptMode));
+updateScriptMode();
 
 $('cancel').addEventListener('click', () => current && api(`/api/jobs/${current.id}/cancel`, { method: 'POST' }));
 
@@ -397,8 +419,9 @@ async function openEditor(slug, quiet) {
     $('edScript').value = d.script;
     const sv = $('setVoice');
     sv.textContent = '';
-    config.voices.forEach((v) => sv.append(el('option', { value: v.id, textContent: `${nice(v.id)} · ${v.label.replace(' English', '').replace(', ', ' ')}` })));
     const st = d.settings;
+    // Kokoro voices only speak their own language, so a video can only switch between voices of its language.
+    config.voices.filter((v) => v.language === (st.language || 'en')).forEach((v) => sv.append(el('option', { value: v.id, textContent: voiceText(v) })));
     $('setTitle').value = st.title;
     if (st.voice) sv.value = st.voice;
     sv.disabled = !st.voice;
@@ -512,13 +535,23 @@ function updatePictures() {
 const player = new Audio();
 let playingBtn = null;
 const nice = (id) => id.slice(3).replace(/^./, (c) => c.toUpperCase());
+const voiceText = (v) => `${nice(v.id)} · ${v.label.replace(' English', '').replace(', ', ' ')}`;
+const LANGUAGE_NAMES = { en: 'English', hi: 'Hindi' };
+// The languages that have voices, English first, as [code, name].
+const voiceLanguages = () => [...new Set(config.voices.map((v) => v.language))].map((c) => [c, LANGUAGE_NAMES[c] || c]);
 function resetPlay() { if (playingBtn) { playingBtn.textContent = '▶'; playingBtn.classList.remove('on'); playingBtn.setAttribute('aria-label', playingBtn.dataset.name + ': play sample'); } playingBtn = null; }
 player.addEventListener('ended', resetPlay);
 player.addEventListener('pause', () => { if (player.ended || player.currentTime > 0) resetPlay(); });
 
 function buildVoiceList() {
   const list = $('vlist');
-  for (const v of config.voices) {
+  const langs = voiceLanguages();
+  for (const v of langs.flatMap(([lang]) => config.voices.filter((x) => x.language === lang))) {
+    if (langs.length > 1 && !list.querySelector(`[data-lang="${v.language}"]`)) {
+      const head = el('div', { className: 'vhead', textContent: LANGUAGE_NAMES[v.language] || v.language });
+      head.dataset.lang = v.language;
+      list.append(head);
+    }
     const play = el('button', { type: 'button', className: 'play', textContent: '▶' });
     play.dataset.name = nice(v.id);
     play.setAttribute('aria-label', `${nice(v.id)}: play sample`);
@@ -533,7 +566,7 @@ function buildVoiceList() {
   markVoice();
 }
 function markVoice() {
-  for (const row of $('vlist').children) {
+  for (const row of $('vlist').querySelectorAll('.vrow')) {
     const on = row.dataset.id === $('voice').value;
     row.classList.toggle('sel', on);
     row.querySelector('.use').textContent = on ? 'Selected' : 'Use';
@@ -561,10 +594,12 @@ const fmt = (ms) => { const s = Math.round(ms / 1000); return `${Math.floor(s / 
 function renderSteps(reached, now) {
   const box = $('steps'); box.textContent = '';
   const live = current && ['running', 'queued'].includes(current.status);
-  const steps = current?.kind === 'rerender' ? [['voice', 'Narration'], ['review', 'Check'], ['render', 'Render']] : STEPS;
+  // A job with the user's own script has no research or script-writing steps.
+  const steps = current?.kind === 'rerender' ? [['voice', 'Narration'], ['review', 'Check'], ['render', 'Render']]
+    : current?.skipScript ? [['yours', 'Your script'], ...STEPS.slice(2)] : STEPS;
   for (const [id, label] of steps) {
     if (id === 'pictures' && current && current.kind === 'create' && !current.pictures) continue;
-    const cls = id === now && live ? 'now' : reached.includes(id) || now === 'done' || (now === 'verify' && id === 'render') ? 'done' : '';
+    const cls = id === now && live ? 'now' : id === 'yours' || reached.includes(id) || now === 'done' || (now === 'verify' && id === 'render') ? 'done' : '';
     box.append(el('span', { className: `step ${cls}`, textContent: label }));
   }
 }
