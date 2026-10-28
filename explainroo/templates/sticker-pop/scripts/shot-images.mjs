@@ -10,6 +10,9 @@
 //   node scripts/shot-images.mjs <project-folder> --pollinations [--only 3,5,7] fast, hosted FLUX; needs POLLINATIONS_API_KEY; prompts are sent to pollinations.ai
 //   node scripts/shot-images.mjs <project-folder> --yes [--cheap] [--only 3,5,7]  OpenRouter: COSTS MONEY (about 7 to 13 cents a picture, about half with --cheap)
 //
+// Perchance works in several browser tabs at once (3 by default; --tabs N or EXPLAINROO_PERCHANCE_TABS, 1 to 6), each
+// tab taking the next missing picture. --tabs 1 goes back to one picture at a time.
+//
 // OpenRouter needs OPENROUTER_API_KEY in the environment or in a .env file (never put it in a script).
 // With --both or --all the lanes share one list of missing pictures, so the faster lane does more of them. The
 // models draw in slightly different styles; if the video looks uneven, remake the odd ones with one model
@@ -20,9 +23,14 @@ import { spawn } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
 
 const args = process.argv.slice(2);
-const project = path.resolve(args.find((a) => !a.startsWith('--')) || '.');
+const project = path.resolve(args.find((a, i) => !a.startsWith('--') && !['--only', '--tabs'].includes(args[i - 1])) || '.');
 const flag = (n) => args.includes(`--${n}`);
 const only = (() => { const i = args.indexOf('--only'); return i >= 0 ? args[i + 1].split(',').map(Number) : null; })();
+const tabs = (() => {
+  const i = args.indexOf('--tabs');
+  const n = Math.floor(Number(i >= 0 ? args[i + 1] : process.env.EXPLAINROO_PERCHANCE_TABS));
+  return Math.min(6, Math.max(1, Number.isFinite(n) && n > 0 ? n : 3));
+})();
 const bin = path.resolve(project, '../../bin/explainroo.js');
 if (!fs.existsSync(path.join(project, 'shots.js'))) { console.error(`no shots.js in ${project}`); process.exit(1); }
 if (!fs.existsSync(bin)) { console.error(`cannot find explainroo at ${bin}; run this from a project inside explainroo/videos/`); process.exit(1); }
@@ -31,30 +39,32 @@ const { SHOTS, STYLE, ASPECT } = await import(pathToFileURL(path.join(project, '
 const have = (base) => ['png', 'jpg', 'jpeg', 'webp', 'mp4', 'mov', 'webm', 'm4v'].some((e) => fs.existsSync(path.join(project, 'assets', `${base}.${e}`)));
 const todo = SHOTS.filter((s) => !have(s.file) && (!only || only.includes(s.n)));
 
-const lanes = flag('all') ? ['perchance', 'cloudflare', 'local'] : flag('both') ? ['perchance', 'local']
+const makers = flag('all') ? ['perchance', 'cloudflare', 'local'] : flag('both') ? ['perchance', 'local']
   : [flag('perchance') ? 'perchance' : flag('cloudflare') ? 'cloudflare' : flag('pollinations') ? 'pollinations' : flag('local') ? 'local' : flag('cheap') ? 'cheap' : 'best'];
+// Perchance gets one lane per browser tab (never more tabs than pictures); the other makers get one lane each.
+const lanes = makers.flatMap((m) => m === 'perchance' ? Array.from({ length: Math.max(1, Math.min(tabs, todo.length)) }, (_, i) => ({ model: m, name: `perchance#${i + 1}` })) : [{ model: m, name: m }]);
 const multi = lanes.length > 1;
-const free = lanes.every((m) => ['local', 'perchance', 'cloudflare', 'pollinations'].includes(m));
+const free = makers.every((m) => ['local', 'perchance', 'cloudflare', 'pollinations'].includes(m));
 const describe = {
   local: 'on this computer (free, about 2 minutes each at 576x1024 on an M2)',
-  perchance: 'with perchance.org in a Chrome window (free, about 20 to 30 seconds each; prompts are sent to that website)',
+  perchance: `with perchance.org in ${tabs} Chrome tab${tabs === 1 ? '' : 's'} at a time (free, about 20 to 30 seconds each; prompts are sent to that website)`,
   cloudflare: 'with Cloudflare Workers AI (about 5 seconds each, free daily allowance; prompts are sent to Cloudflare)',
   pollinations: 'with hosted FLUX on pollinations.ai (about 10 seconds each; prompts are sent to that website)',
 };
 
-if (multi) console.log(`${todo.length} picture(s) to make, ${lanes.length} at a time (${lanes.join(', ')}), each lane taking the next missing picture.`);
-else if (describe[lanes[0]]) console.log(`${todo.length} picture(s) to make ${describe[lanes[0]]}.`);
-else console.log(`${todo.length} picture(s) to make with --model ${lanes[0]}; about ${(todo.length * (lanes[0] === 'best' ? 0.07 : 0.035)).toFixed(2)} to ${(todo.length * (lanes[0] === 'best' ? 0.13 : 0.065)).toFixed(2)} dollars (estimate).`);
+if (multi) console.log(`${todo.length} picture(s) to make, ${lanes.length} at a time (${lanes.map((l) => l.name).join(', ')}), each lane taking the next missing picture.`);
+else if (describe[makers[0]]) console.log(`${todo.length} picture(s) to make ${describe[makers[0]]}.`);
+else console.log(`${todo.length} picture(s) to make with --model ${makers[0]}; about ${(todo.length * (makers[0] === 'best' ? 0.07 : 0.035)).toFixed(2)} to ${(todo.length * (makers[0] === 'best' ? 0.13 : 0.065)).toFixed(2)} dollars (estimate).`);
 for (const s of todo) console.log(`  shot ${String(s.n).padStart(2, '0')}  ${s.file}: ${s.prompt}`);
 if (flag('dry-run') || !(free || flag('yes'))) { console.log(flag('dry-run') ? '\n(dry run: nothing was made)' : '\nAdd --yes to make them.'); process.exit(0); }
 
 // Runs `explainroo image` for one shot with one model; every output line is tagged with the lane name when two lanes run.
-function makeOne(shot, model) {
+function makeOne(shot, { model, name }) {
   return new Promise((resolve) => {
     const prompt = `${shot.prompt}. ${STYLE}`;
-    console.log(`making ${shot.file} ${multi ? `with ${model} ` : ''}...`);
+    console.log(`making ${shot.file} ${multi ? `with ${name} ` : ''}...`);
     const child = spawn('node', [bin, 'image', project, shot.file, prompt, '--aspect', ASPECT || '9:16', '--model', model, '--no-style'], { stdio: ['ignore', 'pipe', 'pipe'] });
-    const tag = multi ? `[${model}] ` : '';
+    const tag = multi ? `[${name}] ` : '';
     for (const [stream, out] of [[child.stdout, process.stdout], [child.stderr, process.stderr]]) {
       let buf = '';
       stream.on('data', (d) => {
@@ -72,14 +82,17 @@ function makeOne(shot, model) {
 const queue = [...todo];
 const made = {};
 let stopped = false;
-async function lane(model) {
+async function lane(l, index) {
+  const { model, name } = l;
+  // Start the lanes a few seconds apart: the first Perchance tab opens Chrome, the others join it.
+  if (index > 0) await new Promise((r) => setTimeout(r, Math.min(index, 5) * 2500));
   while (queue.length && !stopped) {
     const shot = queue.shift();
-    const code = await makeOne(shot, model);
+    const code = await makeOne(shot, l);
     if (code === 0) { made[model] = (made[model] || 0) + 1; continue; }
     if (multi) {
       // This lane is out (no Chrome, check not completed, model not installed...): give the picture to the other lane.
-      console.error(`${model} could not make ${shot.file}; leaving the rest to the other lane.`);
+      console.error(`${name} could not make ${shot.file}; leaving the rest to the other lanes.`);
       queue.unshift(shot);
       return;
     }

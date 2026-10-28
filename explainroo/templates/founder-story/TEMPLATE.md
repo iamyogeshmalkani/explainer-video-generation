@@ -51,7 +51,7 @@ Write the hook and the ending first, then fill the middle so the video keeps its
 
 ## The look
 
-- **Real photographs only.** One photograph per beat, 3 to 5 seconds each, a slow Ken Burns move (about 9% at most; the kit does it),
+- **Real photographs only.** One photograph per beat, 2 to 4 seconds each, **never more than 4 seconds** (`photos()` stops `check` and `render` with a list of the shots that run longer; the voice says about 2 words a second, so put a `[#marker]` and a shot about every 8 spoken words and split a long sentence at a comma), a slow Ken Burns move (about 9% at most; the kit does it),
   a soft dissolve into the next. Faces: give `focus: [x, y]` so the crop keeps the face. Wide photos and objects: `fit: 'fit'`.
   A panorama: `sweep`.
 - **The photo must show what the line says.** If no free photo of that moment exists (this is common for the 1980s to 2000s), show
@@ -75,7 +75,7 @@ Write the hook and the ending first, then fill the middle so the video keeps its
 1. **Research the founder.** Use WebSearch. Collect 12 to 16 verified facts with dates. Never invent numbers or quotes. Leave out what
    sources disagree on (a price, a headcount), or say "about". Quotes must be word for word from a transcript.
 2. **Copy the template:** `scripts/new-video.sh founder-story <name>`.
-3. **Write `script.md`** using the beats above. A `[#s1]`, `[#s2]` ... marker at every picture change. Put the facts you used in a `>` note.
+3. **Write `script.md`** using the beats above. A `[#s1]`, `[#s2]` ... marker at every picture change, **about every 8 spoken words and never more than 4 seconds apart** (a 70 to 80 second video has about 30 shots). Put the facts you used in a `>` note.
 4. **Write `shots.js`:** one shot per marker with a `query` (the NAME of the person, place or object, plus one or two facts), `LABELS`,
    one `STATS`, one `QUOTES` if you have a verified quote, and `HOOK`.
 5. **Voice:** `node bin/explainroo.js voice videos/<name>`. Fix `{shown|spoken}` names the check cannot confirm.
@@ -97,4 +97,5 @@ Write the hook and the ending first, then fill the middle so the video keeps its
 - Long quotes on screen. One short quote, a few lines at most.
 - Inventing a quote or a number because it sounds right. Leave it out.
 - A figure that sources disagree on, stated as fact.
+- A photograph on screen longer than 4 seconds. Split the sentence with another marker and give the new part its own photo.
 - Too many plates. A plate for every shot is noise; use them where a new name or year needs it.

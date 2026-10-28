@@ -4,14 +4,14 @@ A documentary-style short about one founder, told with **real photographs**: slo
 name and year plate, one big number, one quote card, word-lit captions, and an **inspiring piano-and-strings music bed that builds**
 (the `inspiring` music style). No stickers, no drawings, no AI pictures of real people.
 
-The sample here is *Steve Jobs: fired from the company he started* (about 80 seconds). The photographs are found for you on Wikimedia
+The sample here is *Steve Jobs: fired from the company he started* (about 77 seconds, 31 photographs). The photographs are found for you on Wikimedia
 Commons (only pictures that may be reused) and credited.
 
 ## Make a video
 
 ```sh
 scripts/new-video.sh founder-story my-founder        # copies this template to videos/my-founder
-# 1. edit videos/my-founder/script.md     (the narration, with a [#s1], [#s2] ... marker at every photo change)
+# 1. edit videos/my-founder/script.md     (the narration, with a [#s1], [#s2] ... marker at every photo change, about every 8 words: no photo may stay longer than 4 seconds)
 # 2. edit videos/my-founder/shots.js      (one query per photo; plates, one stat, one quote, the hook)
 node bin/explainroo.js voice videos/my-founder
 node videos/my-founder/scripts/find-photos.mjs videos/my-founder      # finds and saves the photos, writes credits.md
@@ -46,7 +46,7 @@ event. Photographs of a person are the photographer's work, not a likeness made 
 
 | Call | What it draws |
 |---|---|
-| `photos(s, SHOTS)` | the photographs: a slow push, pull, pan or rise; a soft dissolve between shots; `focus`, `fit`, `sweep` |
+| `photos(s, SHOTS)` | the photographs: a slow push, pull, pan or rise; a soft dissolve between shots; `focus`, `fit`, `sweep`. **A photograph may stay at most 4 seconds** (`photos(s, SHOTS, { maxShot })` changes the limit); if one does, `check` and `render` stop and list the shots, so add a marker and a shot in the middle of that line. Video clips are not limited. |
 | `grade(s)` | a soft vignette and a dark foot so the captions stay readable |
 | `hook(s, text, { out })` | the opening line near the top, in the serif |
 | `labels(s, LABELS)` | a plate at the top left: a gold kicker (year, role, place) over a name or title |

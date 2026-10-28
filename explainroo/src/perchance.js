@@ -5,7 +5,9 @@
 // Perchance sits behind a Cloudflare "verify you are not a bot" check. This code does not try to get around it:
 // in a normal window the check usually passes by itself; when it shows a box, a person has to tick it in the
 // window, and the run waits for that. The page also shows ads, which is how the service pays for itself,
-// so keep the volume small: one picture at a time, a short pause between pictures.
+// so keep the volume modest: a few tabs at a time (EXPLAINROO_PERCHANCE_TABS, see perchanceTabs()), a short pause
+// between the pictures one tab makes. Every picture gets its own tab in the shared Chrome window, so several
+// explainroo processes (or several lanes of shot-images.mjs / series.mjs) can use Perchance at the same time.
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -18,11 +20,19 @@ const PAGE_URL = 'https://perchance.org/ai-text-to-image-generator';
 const PORT = Number(process.env.EXPLAINROO_PERCHANCE_PORT) || 9333;
 const PROFILE = process.env.EXPLAINROO_PERCHANCE_PROFILE || path.join(os.homedir(), '.cache', 'explainroo', 'chrome-perchance');
 const COUNT = [2, 4, 6, 8].includes(Number(process.env.EXPLAINROO_PERCHANCE_COUNT)) ? Number(process.env.EXPLAINROO_PERCHANCE_COUNT) : 2;
-const PAUSE_MS = 4000; // a polite gap between two pictures
+const PAUSE_MS = 4000; // a polite gap between two pictures made by one process
+const MAX_TABS = 6;
+const LOCK = `${PROFILE}.launch.lock`; // held while one process starts Chrome, so parallel tabs do not start it twice
 const VERIFY_WAIT_MS = 5 * 60 * 1000;
 const GENERATE_WAIT_MS = 3 * 60 * 1000;
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// How many Perchance tabs may work at the same time: EXPLAINROO_PERCHANCE_TABS, or `fallback` (3), from 1 to 6.
+export function perchanceTabs(fallback = 3) {
+  const n = Math.floor(Number(process.env.EXPLAINROO_PERCHANCE_TABS));
+  return Math.min(MAX_TABS, Math.max(1, Number.isFinite(n) && n > 0 ? n : fallback));
+}
 const SHAPES = { '1:1': 'Square', '9:16': 'Portrait', '2:3': 'Portrait', '3:4': 'Portrait', '16:9': 'Landscape', '3:2': 'Landscape', '4:3': 'Landscape' };
 
 async function playwright() {
@@ -33,19 +43,49 @@ async function playwright() {
   }
 }
 
+async function attach(chromium, endpoint) {
+  try { return await chromium.connectOverCDP(endpoint, { timeout: 4000 }); } catch { return null; }
+}
+
+// Connects to the Perchance Chrome, starting it first if needed. Several tabs may ask at once: the first one to
+// take the lock starts Chrome, the others wait for it and then connect to the same window.
 async function connect(chromium) {
   const endpoint = `http://127.0.0.1:${PORT}`;
-  try { return await chromium.connectOverCDP(endpoint, { timeout: 4000 }); } catch { /* not running yet */ }
-  const bin = findChrome();
-  fs.mkdirSync(PROFILE, { recursive: true });
-  const child = spawn(bin, [
-    `--user-data-dir=${PROFILE}`, `--remote-debugging-port=${PORT}`, '--remote-debugging-address=127.0.0.1',
-    '--no-first-run', '--no-default-browser-check', '--window-size=1200,900', 'about:blank',
-  ], { detached: true, stdio: 'ignore' });
-  child.unref();
-  for (let i = 0; i < 40; i++) {
-    await sleep(500);
-    try { return await chromium.connectOverCDP(endpoint, { timeout: 4000 }); } catch { /* keep waiting */ }
+  const first = await attach(chromium, endpoint);
+  if (first) return first;
+  const t0 = Date.now();
+  while (Date.now() - t0 < 60000) {
+    let held = false;
+    try { fs.mkdirSync(LOCK); held = true; } catch {
+      try { if (Date.now() - fs.statSync(LOCK).mtimeMs > 60000) fs.rmSync(LOCK, { recursive: true, force: true }); } catch { /* released meanwhile */ }
+    }
+    if (!held) {
+      await sleep(700);
+      const b = await attach(chromium, endpoint);
+      if (b) return b;
+      continue;
+    }
+    try {
+      const b = await attach(chromium, endpoint); // somebody may have started it while we waited for the lock
+      if (b) return b;
+      fs.mkdirSync(PROFILE, { recursive: true });
+      const child = spawn(findChrome(), [
+        `--user-data-dir=${PROFILE}`, `--remote-debugging-port=${PORT}`, '--remote-debugging-address=127.0.0.1',
+        '--no-first-run', '--no-default-browser-check', '--window-size=1200,900',
+        // several tabs work at once, so a tab that is not in front must not be slowed down
+        '--disable-background-timer-throttling', '--disable-renderer-backgrounding', '--disable-backgrounding-occluded-windows',
+        'about:blank',
+      ], { detached: true, stdio: 'ignore' });
+      child.unref();
+      for (let i = 0; i < 40; i++) {
+        await sleep(500);
+        const c = await attach(chromium, endpoint);
+        if (c) return c;
+      }
+      break;
+    } finally {
+      fs.rmSync(LOCK, { recursive: true, force: true });
+    }
   }
   throw new ProjectError(`could not open Chrome for Perchance (port ${PORT}). Close any window that uses ${PROFILE} and try again.`);
 }

@@ -23,6 +23,8 @@ const SANS = '"Plus Jakarta Sans", "Noto Sans Devanagari", sans-serif';
 const SERIF = '"Playfair Display", Georgia, serif';
 const GOLD = '#f0c978';
 const XFADE = 0.45; // seconds one photograph takes to dissolve into the next
+const MAX_SHOT = 4; // seconds: no photograph stays on screen longer than this (the viewer gets bored); photos(s, list, { maxShot }) changes it
+const CREDITS_SECONDS = 3.4; // the credits card covers the end of the last photograph (see creditsCard)
 
 const MOTIONS = {
   push: { z: [1.0, 1.09], x: [0, 0], y: [0, 0] },
@@ -87,12 +89,21 @@ function placeholder(s, shot, i, t0, t1, first) {
 }
 
 // Every photograph runs until the next one starts (and dissolves into it); the first starts at frame 0.
-export function photos(s, list) {
+// A photograph may not stay longer than 4 seconds (o.maxShot): when one does, this stops with a list of the shots to
+// split, so put another [#marker] and another shot in the middle of that stretch of narration (a new photo, or the
+// same subject from another side). Video clips (.mp4) are not limited.
+export function photos(s, list, o = {}) {
+  const maxShot = o.maxShot ?? MAX_SHOT;
+  const tooLong = [];
   list.forEach((shot, i) => {
     const first = i === 0;
     const t0 = first ? 0 : s.time(shot.at);
     const t1 = i + 1 < list.length ? s.time(list[i + 1].at) + XFADE : s.dur;
     const found = findAsset(s, shot.file);
+    if (found?.kind !== 'clip') {
+      const shown = (i + 1 < list.length ? s.time(list[i + 1].at) : s.dur - CREDITS_SECONDS) - t0;
+      if (shown > maxShot + 0.05) tooLong.push(`shot ${shot.n ?? i + 1} (${shot.at}) is on screen ${shown.toFixed(1)} s`);
+    }
     if (!found) { placeholder(s, shot, i, t0, t1, first); return; }
     if (found.kind === 'clip') {
       s.clip(found.src, { x: s.cx, y: s.cy, w: s.W, h: s.H, fit: 'cover', frame: 'none', shadow: false, radius: 0, at: t0, out: t1, enter: first ? 'none' : 'fade', dur: XFADE, outDur: XFADE, sfx: false, speed: shot.speed ?? 1, from: shot.from ?? 0 });
@@ -134,6 +145,7 @@ export function photos(s, list) {
       ctx.drawImage(img, -left, -top, w, h);
     });
   });
+  if (tooLong.length) throw new Error(`founder-story: a photograph may stay on screen ${maxShot} seconds at most, but ${tooLong.join('; ')}. Add a [#marker] about every ${maxShot} seconds in script.md (roughly every 9 to 10 words) and a shot for it in shots.js.`);
 }
 
 // Dark edges, and a dark foot where the captions sit.

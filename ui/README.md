@@ -27,7 +27,7 @@ Jobs run one at a time; others wait in line. **Cancel** stops the agent.
 |---|---|
 | Length | Short is about 30 s, Standard 45 s, Long 75 s (a template's own range wins). |
 | Voice | Any English Kokoro voice, run on this computer. |
-| Pictures | **Local** draws with mflux on this Mac: free and private, about 2 minutes a picture. **Perchance** drives perchance.org in a Chrome window of its own (no key; about 25 s a picture). **Cloudflare Workers AI** needs `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` in `explainroo/.env` (the option is disabled until both are set). **Pollinations** needs credit and a `POLLINATIONS_API_KEY`. **Local + Perchance** and **All three** run the makers at the same time, each taking the next missing picture (the default is Local + Perchance). Templates that draw everything in code ignore it. |
+| Pictures | **Local** draws with mflux on this Mac: free and private, about 2 minutes a picture. **Perchance** drives perchance.org in a Chrome window of its own, with 3 tabs working at the same time (no key; about 25 s a picture per tab; `EXPLAINROO_PERCHANCE_TABS` sets 1 to 6). **Cloudflare Workers AI** needs `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` in `explainroo/.env` (the option is disabled until both are set). **Pollinations** needs credit and a `POLLINATIONS_API_KEY`. **Local + Perchance** and **All three** run the makers at the same time, each taking the next missing picture (the default is Local + Perchance). Templates that draw everything in code ignore it. |
 | Style notes | Free text, for example "muted, mature colors" or "serious tone". |
 | Your script, outline or sources | Optional. Paste your own narration and choose **As the script** (kept word for word; it is only split into scenes and marked up, and the length setting is ignored) or **As an outline** (key points, facts or links that the script must cover; links are read for facts). Leave it empty and the script is written for you. |
 
@@ -51,7 +51,7 @@ Every video in the **Library** has an **Edit** button (the player has one too). 
 Perchance has no API, so explainroo opens a normal Chrome window with its own profile (`~/.cache/explainroo/chrome-perchance`;
 your own Chrome tabs and logins are not touched) and fills in the page for you. It is behind a Cloudflare "verify you are
 human" check: that is not bypassed. It usually passes by itself; if a box appears, tick it in that window once and the run
-continues. Pictures are made one at a time with a pause between them, because the site is free and paid for by its ads.
+continues. Pictures are made in 3 tabs of that one window at the same time (set `EXPLAINROO_PERCHANCE_TABS` for 1 to 6), with a pause between a tab's pictures, because the site is free and paid for by its ads.
 You can close the window at any time; it reopens when needed. The other candidate from each run is kept in
 `build/images/alternatives/`.
 

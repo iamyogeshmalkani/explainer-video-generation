@@ -10,6 +10,7 @@
 //
 //   options:  --only 1,3      only these shorts
 //             --lanes all|local,perchance,cloudflare,pollinations   picture makers (default: all = local, perchance and cloudflare)
+//             --tabs N                                               Perchance browser tabs working at once (1 to 6, default 3)
 //             --draft         render the quick half-size version
 //
 // The file format is described in templates/dark-history-hindi/README.md and shown in series/india-china-1962.md.
@@ -17,15 +18,16 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { perchanceTabs } from '../src/perchance.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const bin = path.join(root, 'bin/explainroo.js');
 const argv = process.argv.slice(2);
 const flagVal = (n) => { const i = argv.indexOf(`--${n}`); return i >= 0 ? argv[i + 1] : null; };
 const hasFlag = (n) => argv.includes(`--${n}`);
-const positional = argv.filter((a, i) => !a.startsWith('--') && !(i > 0 && ['--only', '--lanes'].includes(argv[i - 1])));
+const positional = argv.filter((a, i) => !a.startsWith('--') && !(i > 0 && ['--only', '--lanes', '--tabs'].includes(argv[i - 1])));
 const [seriesFile, command = 'plan', laneArg] = positional;
-if (!seriesFile) { console.error('usage: node scripts/series.mjs <series.md> plan|build|images|voice|render|make [--only 1,3] [--lanes all|local,perchance,cloudflare|pollinations] [--draft]'); process.exit(1); }
+if (!seriesFile) { console.error('usage: node scripts/series.mjs <series.md> plan|build|images|voice|render|make [--only 1,3] [--lanes all|local,perchance,cloudflare|pollinations] [--tabs 3] [--draft]'); process.exit(1); }
 const only = flagVal('only') ? flagVal('only').split(',').map(Number) : null;
 
 // ---------- parsing ----------
@@ -203,30 +205,35 @@ const cli = (cmd, dir, extra = []) => run([bin, cmd, dir, ...extra], { tag: `[${
 const haveImage = (dir, base) => ['png', 'jpg', 'jpeg', 'webp', 'mp4', 'mov', 'webm', 'm4v'].some((e) => fs.existsSync(path.join(dir, 'assets', `${base}.${e}`)));
 async function images() {
   const spec = laneArg || flagVal('lanes') || 'all';
-  const lanes = spec === 'all' ? ['perchance', 'cloudflare', 'local'] : spec === 'both' ? ['perchance', 'local'] : spec.split(',');
+  const makers = spec === 'all' ? ['perchance', 'cloudflare', 'local'] : spec === 'both' ? ['perchance', 'local'] : spec.split(',');
+  // Perchance works in several browser tabs at once (--tabs N or EXPLAINROO_PERCHANCE_TABS, 1 to 6, default 3): one lane per tab.
+  const tabs = perchanceTabs(Number(flagVal('tabs')) || 3);
+  const lanes = makers.flatMap((m) => m === 'perchance' ? Array.from({ length: tabs }, (_, i) => ({ model: m, name: `perchance#${i + 1}`, delay: Math.min(i, 5) * 2500 })) : [{ model: m, name: m, delay: 0 }]);
   const queue = [];
   for (const s of shorts) {
     const dir = dirOf(s);
     const { SHOTS, STYLE, ASPECT } = await import(`${path.join(dir, 'shots.js')}?t=${Date.now()}`);
     for (const shot of SHOTS) if (!haveImage(dir, shot.file)) queue.push({ dir, file: shot.file, prompt: `${shot.prompt}. ${STYLE}`, aspect: ASPECT || '9:16' });
   }
-  console.log(`${queue.length} picture(s) to make with ${lanes.join(' + ')} sharing one queue.`);
+  console.log(`${queue.length} picture(s) to make with ${lanes.map((l) => l.name).join(' + ')} sharing one queue.`);
   const made = {};
   const failed = {};
-  async function lane(model) {
+  async function lane({ model, name, delay }) {
+    // the first Perchance tab opens Chrome; the others start a little later and join it
+    if (delay) await new Promise((r) => setTimeout(r, delay));
     while (queue.length) {
       const job = queue.shift();
-      console.log(`[${model}] ${path.basename(job.dir)}/${job.file}  (${queue.length} left in queue)`);
+      console.log(`[${name}] ${path.basename(job.dir)}/${job.file}  (${queue.length} left in queue)`);
       let ok = false;
       for (let attempt = 0; attempt < 2 && !ok; attempt++) {
         const r = await run([bin, 'image', job.dir, job.file, job.prompt, '--aspect', job.aspect, '--model', model, '--no-style'], { quiet: true });
         ok = r.code === 0;
-        if (!ok && attempt === 1) console.error(`[${model}] failed ${path.basename(job.dir)}/${job.file}: ${r.log.trim().split('\n').slice(-2).join(' | ')}`);
+        if (!ok && attempt === 1) console.error(`[${name}] failed ${path.basename(job.dir)}/${job.file}: ${r.log.trim().split('\n').slice(-2).join(' | ')}`);
       }
-      if (ok) { made[model] = (made[model] || 0) + 1; failed[model] = 0; continue; }
-      failed[model] = (failed[model] || 0) + 1;
+      if (ok) { made[model] = (made[model] || 0) + 1; failed[name] = 0; continue; }
+      failed[name] = (failed[name] || 0) + 1;
       queue.push(job); // another lane may do it
-      if (failed[model] >= 3) { console.error(`[${model}] stopping after 3 failures in a row`); return; }
+      if (failed[name] >= 3) { console.error(`[${name}] stopping after 3 failures in a row`); return; }
     }
   }
   await Promise.all(lanes.map(lane));
