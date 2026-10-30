@@ -45,7 +45,7 @@ test('each language picks its default and rejects every voice from a different l
       if (voiceLanguage(voice) === language) assert.equal(normalizeConfig({ language, voice }).voice, voice);
       else assert.throws(() => normalizeConfig({ language, voice }), e => e instanceof ProjectError && e.message.includes(id));
     }
-    for (const voice of [{ provider: 'elevenlabs', id: 'sample' }, { provider: 'recording', src: 'assets/take.wav' }]) {
+    for (const voice of [{ provider: 'recording', src: 'assets/take.wav' }]) {
       assert.equal(normalizeConfig({ language, voice }).language, language);
     }
     assert.equal(asrModel(language), language === 'en' ? ASR_MODEL : MULTILINGUAL_ASR_MODEL);

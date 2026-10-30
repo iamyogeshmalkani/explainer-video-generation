@@ -23,6 +23,7 @@ It is vendored as plain files so one clone of this repository has everything.
 - `explainroo/src/images.js` and `src/cli.js`: `local` (Z-Image-Turbo through mflux, free) and `pollinations` (hosted FLUX, `POLLINATIONS_API_KEY`) image models (`--model local|pollinations`); `explainroo/templates/story-shots/scripts/shot-images.mjs` has a matching `--local` flag
 - `explainroo/engine/audio/music.js`: a new `cinematic` music style (also in `src/project.js` and AGENTS.md), and `explainroo/dev/music-preview.mjs` to render a style to a WAV
 - `explainroo/templates/dark-history-hindi/` (dark-history in Hindi: Devanagari captions and hook, upright captions, `epic` music) and `explainroo/scripts/series.mjs` + `explainroo/series/` (a series file with many video scripts; the runner builds, paints, voices and renders them all, with the three image makers sharing one queue)
+- removed the ElevenLabs voice provider (`src/elevenlabs.js`, `voice.provider: "elevenlabs"`, `voices --elevenlabs`) and the OpenRouter picture models (`--model best|cheap`, `--ref`, `--yes`, `--cheap`); the default picture maker is now `perchance`. Pictures come from `local`, `perchance`, `cloudflare` or `pollinations`.
 - at the repository root: `setup.sh`, `setup-local-images.sh`, `env.sh` (also picks a native arm64 ffprobe from `tools/`, installed with `npm install @ffprobe-installer/ffprobe`), `SETUP.md`, `tools/`
 
 Everything else is upstream's.

@@ -18,7 +18,7 @@ The template does not make pictures. Every shot needs a picture or a clip:
 |---|---|---|
 | `scripts/shot-images.mjs <project> --pollinations` | hosted FLUX on pollinations.ai; needs `POLLINATIONS_API_KEY` in `explainroo/.env`; prompts are sent to that service | about 10 seconds a picture |
 | `scripts/shot-images.mjs <project> --local` | free, on this Mac; about 2 minutes a picture | needs `sh setup-local-images.sh` once |
-| `scripts/shot-images.mjs <project>` | paid OpenRouter pictures; asks for `--yes` | needs an OpenRouter key |
+| `scripts/shot-images.mjs <project>` | makes the pictures (`--local`, `--perchance`, `--cloudflare`, `--pollinations`) | Cloudflare and Pollinations need a key; local and Perchance need none |
 | Your own pictures or clips | depends | save as `assets/shot01.png` (or `.jpg`, `.webp`, `.mp4`), 9:16 |
 
 Until a file exists, its shot shows a placeholder with the shot number and prompt. Use only

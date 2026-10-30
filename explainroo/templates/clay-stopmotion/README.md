@@ -97,4 +97,4 @@ Keep the feet in the middle third of the frame (y 0.6 to 0.75): the captions sit
   `PUPPET_BG = 'bright magenta'`. A puppet with a leftover rim or a hole can be remade (delete the file, run the script
   again with `--only <file>`); a picture model sometimes ignores "flat solid background" and draws a floor or a gradient.
 - Facts on screen (numbers, names) are drawn by `board()`, never by the picture model.
-- Voices are explainroo's (Kokoro, or ElevenLabs with your own key).
+- Voices are explainroo's (Kokoro, or your own recording).

@@ -131,7 +131,7 @@ test('chunked uploads are assembled in order and appear only when complete', asy
 
 test('the preview server keeps secrets and sources safe', async () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'explainroo-server-'));
-  fs.writeFileSync(path.join(dir, '.env'), 'OPENROUTER_API_KEY=secret');
+  fs.writeFileSync(path.join(dir, '.env'), 'CLOUDFLARE_API_TOKEN=secret');
   fs.writeFileSync(path.join(dir, 'notes.md'), 'private');
   fs.writeFileSync(path.join(dir, 'scenes.js'), 'export default {};');
   fs.mkdirSync(path.join(dir, 'assets'));

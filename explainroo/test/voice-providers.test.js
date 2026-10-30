@@ -6,8 +6,6 @@ import path from 'node:path';
 import { normalizeConfig, loadProject, ProjectError } from '../src/project.js';
 import { parseScript, speechChunks } from '../src/script.js';
 import { findEnv, readEnvFile } from '../src/env.js';
-import { findKey } from '../src/images.js';
-import { elevenSpeech, elevenSpeed, decodePCM, elevenVoices, elevenUsage } from '../src/elevenlabs.js';
 import { recordingCuts, recordingFiles, decodeRecording, saveRecording } from '../src/recordings.js';
 import { sceneHash } from '../src/voice.js';
 import { readWav, writeWav } from '../src/wav.js';
@@ -20,7 +18,7 @@ function temp(t) {
   return dir;
 }
 
-function project(t, voice = { provider: 'elevenlabs', id: 'test-voice' }) {
+function project(t, voice = 'af_heart') {
   const dir = temp(t);
   fs.mkdirSync(path.join(dir, 'assets'));
   fs.writeFileSync(path.join(dir, 'video.json'), JSON.stringify({ voice }));
@@ -38,20 +36,11 @@ function setEnv(t, name, value) {
   });
 }
 
-function mockAPI(t, fn) {
-  t.mock.method(globalThis, 'fetch', fn);
-  setEnv(t, 'ELEVENLABS_API_KEY', 'secret-test-key');
-}
-
 test('voice config accepts strings and all providers, with provider speed defaults', () => {
   assert.equal(normalizeConfig({}).voice, 'af_heart');
   assert.equal(normalizeConfig({ voice: 'am_michael' }).speed, 0.9);
   assert.equal(normalizeConfig({ voice: { provider: 'kokoro', id: 'af_heart' } }).voice, 'af_heart');
   assert.equal(normalizeConfig({ voice: { provider: 'kokoro', id: 'af_heart' } }).speed, 0.9);
-  const cfg = normalizeConfig({ voice: { provider: 'elevenlabs', id: 'voice' }, pace: 1.6 });
-  assert.deepEqual(cfg.voice, { provider: 'elevenlabs', id: 'voice', model: 'eleven_multilingual_v2' });
-  assert.equal(cfg.speed, 1);
-  assert.equal(normalizeConfig({ voice: { provider: 'elevenlabs', id: 'voice', model: 'eleven_flash_v2_5' }, speed: 0.8 }).speed, 0.8);
   for (const src of ['assets/narration.wav', 'assets/narration/', 'assets/take.m4a']) {
     assert.equal(normalizeConfig({ voice: { provider: 'recording', src } }).speed, 1);
     assert.equal(normalizeConfig({ voice: { provider: 'recording', src }, speed: 1.2 }).speed, 1.2);
@@ -62,9 +51,8 @@ test('voice config accepts strings and all providers, with provider speed defaul
 test('voice config rejects bad providers, missing ids, unknown keys and unsafe paths', () => {
   for (const voice of [null, [], 1, {}, { provider: 'bad' }, { provider: 'toString' }, { provider: ['kokoro'], id: 'af_heart' },
     { provider: 'kokoro' }, { provider: 'kokoro', id: 'bad' }, { provider: 'kokoro', id: 'toString' },
-    { provider: 'kokoro', id: 'af_heart', model: 'x' }, { provider: 'elevenlabs' },
-    { provider: 'elevenlabs', id: '' }, { provider: 'elevenlabs', id: 'v', model: 4 },
-    { provider: 'elevenlabs', id: 'v', key: 'secret' }, { provider: 'recording' },
+    { provider: 'kokoro', id: 'af_heart', model: 'x' }, { provider: 'elevenlabs', id: 'v' },
+    { provider: 'recording' },
     { provider: 'recording', src: '../take.wav' }, { provider: 'recording', src: 'assets/../take.wav' },
     { provider: 'recording', src: 'assets/..\\take.wav' }, { provider: 'recording', src: 'assets/a.wav', id: 'x' }]) {
     assert.throws(() => normalizeConfig({ voice }), ProjectError);
@@ -78,147 +66,18 @@ test('shared env reader keeps environment, project, root precedence and quoted e
   const file = path.join(dir, '.env');
   setEnv(t, name, 'environment');
   fs.writeFileSync(path.join(root, '.env'), `${name}=root\n`);
-  fs.writeFileSync(file, `UNRELATED=x\n  export ${name} = "project"  \nOPENROUTER_API_KEY='image-key'\n`);
+  fs.writeFileSync(file, `UNRELATED=x\n  export ${name} = "project"  \n`);
   assert.equal(readEnvFile(file, name), 'project');
   assert.equal(findEnv(name, dir, root), 'environment');
   process.env[name] = '';
   assert.equal(findEnv(name, dir, root), 'project');
-  setEnv(t, 'OPENROUTER_API_KEY', '');
-  assert.equal(findKey(dir), 'image-key');
   fs.writeFileSync(file, `${name}=''\n`);
   assert.equal(findEnv(name, dir, root), 'root');
   fs.rmSync(file);
   assert.equal(readEnvFile(file, name), null);
 });
 
-test('ElevenLabs requests PCM, neighbouring text, speed, and logs usage without secrets', async (t) => {
-  const p = project(t);
-  p.config.speed = 1.1;
-  p.config.pace = 1.3;
-  const pcm = Buffer.alloc(6);
-  pcm.writeInt16LE(-32768, 0);
-  pcm.writeInt16LE(0, 2);
-  pcm.writeInt16LE(16384, 4);
-  mockAPI(t, async (url, opts) => {
-    assert.equal(url, 'https://api.elevenlabs.io/v1/text-to-speech/test-voice?output_format=pcm_24000');
-    assert.equal(opts.method, 'POST');
-    assert.equal(opts.headers['xi-api-key'], 'secret-test-key');
-    assert.deepEqual(JSON.parse(opts.body), { text: 'Hello.', model_id: 'eleven_multilingual_v2', voice_settings: { speed: 1.2 }, previous_text: 'Before.', next_text: 'After.' });
-    return new Response(pcm);
-  });
-  const audio = await elevenSpeech(p, 'first', 'Hello.', { previous: 'Before.', next: 'After.' });
-  assert.equal(audio.sampling_rate, 24000);
-  assert.deepEqual([...audio.audio], [-1, 0, 0.5]);
-  const usage = elevenUsage(p);
-  assert.equal(usage.length, 1);
-  assert.deepEqual(Object.keys(usage[0]), ['time', 'scene', 'characters', 'model', 'voice_id']);
-  assert.equal(usage[0].scene, 'first');
-  assert.equal(usage[0].characters, 6);
-  assert.equal(usage[0].voice_id, 'test-voice');
-  assert.equal(usage[0].model, 'eleven_multilingual_v2');
-  assert.ok(Number.isFinite(Date.parse(usage[0].time)));
-  assert.ok(!JSON.stringify(usage).includes('secret-test-key'));
-  assert.throws(() => decodePCM(Buffer.alloc(1)), /unreadable audio/);
-  assert.throws(() => decodePCM(Buffer.alloc(0)), /unreadable audio/);
-  assert.equal(elevenSpeed(0.42), 0.7);
-  assert.equal(elevenSpeed(2.56), 1.2);
-  assert.equal(elevenSpeed(1), 1);
-});
-
-test('ElevenLabs keeps the saved voice settings at normal speed', async (t) => {
-  const p = project(t);
-  p.config.speed = 1;
-  p.config.pace = 1;
-  mockAPI(t, async (url, opts) => {
-    assert.equal(JSON.parse(opts.body).voice_settings, undefined);
-    return new Response(Buffer.alloc(2));
-  });
-  await elevenSpeech(p, 'first', 'Hello.');
-});
-
-test('ElevenLabs omits unsupported continuity for v3 and reports unreadable downloads safely', async (t) => {
-  const p = project(t, { provider: 'elevenlabs', id: 'test-voice', model: 'eleven_v3' });
-  mockAPI(t, async (url, opts) => {
-    const body = JSON.parse(opts.body);
-    assert.equal(body.model_id, 'eleven_v3');
-    assert.equal(body.previous_text, undefined);
-    assert.equal(body.next_text, undefined);
-    return new Response(Buffer.alloc(2));
-  });
-  await elevenSpeech(p, 'first', 'Hello.', { previous: 'Before.', next: 'After.' });
-  globalThis.fetch = async () => ({ ok: true, arrayBuffer: async () => { throw new Error('secret-test-key'); } });
-  await assert.rejects(() => elevenSpeech(p, 'first', 'Hello.'), (e) => {
-    assert.match(e.message, /download failed/);
-    assert.ok(!e.message.includes('secret-test-key'));
-    return true;
-  });
-  assert.equal(elevenUsage(p).length, 2);
-});
-
-test('ElevenLabs gives friendly errors without echoing the key or server body', async (t) => {
-  const p = project(t);
-  mockAPI(t, async () => { throw new Error('secret-test-key'); });
-  const error = async (pattern) => assert.rejects(() => elevenSpeech(p, 'first', 'Hello.'), (e) => {
-    assert.match(e.message, pattern);
-    assert.ok(!e.message.includes('secret-test-key'));
-    return true;
-  });
-  await error(/connection/);
-  for (const [http, status, pattern] of [[401, 'invalid_api_key', /rejected/], [403, '', /permissions/],
-    [404, 'voice_not_found', /voice id/], [400, 'voice_not_found', /voice id/], [401, 'quota_exceeded', /no characters/],
-    [402, '', /no characters/], [422, '', /voice.model/]]) {
-    globalThis.fetch = async () => new Response(JSON.stringify({ detail: { status, message: 'secret-test-key' } }), { status: http });
-    await error(pattern);
-  }
-  assert.deepEqual(elevenUsage(p), []);
-  process.env.ELEVENLABS_API_KEY = '';
-  await error(/Ask the user.*elevenlabs.io.*\.env/);
-});
-
-test('ElevenLabs retries 429 and server failures, but stops after three attempts', async (t) => {
-  const p = project(t);
-  let calls = 0;
-  mockAPI(t, async () => {
-    calls++;
-    return calls < 3 ? new Response('{}', { status: calls === 1 ? 429 : 503 }) : new Response(Buffer.alloc(2));
-  });
-  await elevenSpeech(p, 'first', 'Hello.');
-  assert.equal(calls, 3);
-  assert.equal(elevenUsage(p).length, 1);
-  calls = 0;
-  globalThis.fetch = async () => { calls++; return new Response('secret-test-key', { status: 500 }); };
-  await assert.rejects(() => elevenSpeech(p, 'first', 'Hello.'), /busy/);
-  assert.equal(calls, 3);
-  assert.equal(elevenUsage(p).length, 1);
-});
-
-test('ElevenLabs voice list paginates and CLI prints names, ids and labels with JSON support', async (t) => {
-  const dir = temp(t);
-  let calls = 0;
-  mockAPI(t, async (url) => {
-    calls++;
-    assert.equal(url.pathname, '/v2/voices');
-    assert.equal(url.searchParams.get('page_size'), '100');
-    const page2 = url.searchParams.has('next_page_token');
-    if (page2) assert.equal(url.searchParams.get('next_page_token'), 'next');
-    return Response.json({ voices: [{ name: page2 ? 'Bob' : 'Alice', voice_id: page2 ? 'b' : 'a', labels: { accent: 'American' } }], has_more: !page2, next_page_token: page2 ? null : 'next' });
-  });
-  assert.deepEqual(await elevenVoices(dir), [{ name: 'Alice', id: 'a', labels: { accent: 'American' } }, { name: 'Bob', id: 'b', labels: { accent: 'American' } }]);
-  assert.equal(calls, 2);
-  let output = '';
-  t.mock.method(process.stdout, 'write', (s) => { output += s; return true; });
-  assert.equal(await main(['voices', '--elevenlabs', dir, '--json']), 0);
-  assert.equal(JSON.parse(output).voices[1].id, 'b');
-  output = '';
-  assert.equal(await main(['voices', dir, '--elevenlabs']), 0);
-  assert.match(output, /Alice  a  accent: American/);
-  output = '';
-  await main(['voices']);
-  assert.match(output, /af_heart/);
-  assert.match(output, /voices --elevenlabs.*recording/);
-});
-
-test('cached CLI voice output reports recording mismatches and ElevenLabs speed limits', async (t) => {
+test('cached CLI voice output reports recording mismatches', async (t) => {
   const p = project(t, { provider: 'recording', src: 'assets/take.wav' });
   writeWav(path.join(p.dir, 'assets/take.wav'), new Float32Array(24000), 24000);
   const recordings = recordingFiles(p);
@@ -238,17 +97,6 @@ test('cached CLI voice output reports recording mismatches and ElevenLabs speed 
   t.mock.method(process.stdout, 'write', (s) => { output += s; return true; });
   assert.equal(await main(['voice', p.dir, '--json']), 0);
   assert.match(JSON.parse(output).scenes[0].message, /recording does not match.*actually said/);
-  fs.writeFileSync(path.join(p.dir, 'video.json'), JSON.stringify({ voice: { provider: 'elevenlabs', id: 'v' }, pace: 1.3 }));
-  p.config = loadProject(p.dir).config;
-  cache(false);
-  output = '';
-  assert.equal(await main(['voice', p.dir, '--json']), 0);
-  assert.equal(JSON.parse(output).speed, 1.2);
-  assert.equal(JSON.parse(output).requested_speed, 1.3);
-  assert.equal(JSON.parse(output).characters, 0);
-  output = '';
-  assert.equal(await main(['voice', p.dir]), 0);
-  assert.equal((output.match(/outside 0.7 to 1.2/g) || []).length, 1);
 });
 
 test('single-take cuts retain internal pauses and margins, skip silent scenes and avoid overlap', () => {
@@ -304,8 +152,6 @@ test('scene cache includes audio settings and recording contents, ignores record
   const hash = sceneHash(scene, chunks, cfg);
   assert.notEqual(hash, sceneHash(scene, chunks, { ...cfg, voice: 'am_michael' }));
   assert.notEqual(hash, sceneHash(scene, chunks, { ...cfg, speed: 1 }));
-  const eleven = normalizeConfig({ voice: { provider: 'elevenlabs', id: 'v' } });
-  assert.notEqual(sceneHash(scene, chunks, eleven), sceneHash(scene, chunks, { ...eleven, voice: { ...eleven.voice, model: 'another' } }));
   const recording = normalizeConfig({ voice: { provider: 'recording', src: 'assets/take.wav' } });
   const recHash = sceneHash(scene, chunks, recording, { content: 'abc' });
   assert.notEqual(recHash, sceneHash(scene, chunks, recording, { content: 'def' }));

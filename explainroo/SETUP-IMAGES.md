@@ -18,7 +18,7 @@ explainroo image ...     src/images.js sends the prompt to the chosen model
 assets/<file>.png        the finished picture, used by scenes.js
 ```
 
-Nothing runs without `--yes`, `--local` or `--pollinations`. Use `--dry-run` first to see the list.
+Use `--dry-run` first to see the list of pictures that would be made.
 
 ## 1. Basics (once)
 
@@ -36,12 +36,9 @@ For Hindi videos also run `brew install espeak-ng`.
 |---|---|---|---|---|
 | Local (Z-Image-Turbo on your Mac) | `--local` | free | about 2 min per picture | `mflux` (step 2A) |
 | Pollinations (hosted FLUX) | `--pollinations` | per your plan | about 10 s | `POLLINATIONS_API_KEY` |
-| OpenRouter, GPT Image 2 | `--yes` | about 7 to 13 cents per picture | fast | `OPENROUTER_API_KEY` |
-| OpenRouter, Gemini Flash Image | `--yes --cheap` | about half of the above | fast | `OPENROUTER_API_KEY` |
 | Cloudflare Workers AI (FLUX schnell) | `--model cloudflare` | free daily allowance | fast | token + account id |
 
 Local is the only one that sends nothing off your computer. The others send each prompt to that service.
-Only the OpenRouter models can use reference images (`--ref`).
 
 ### 2A. Local (free, no key)
 
@@ -61,7 +58,6 @@ script, a commit or a chat message.
 
 ```bash
 cat >> .env <<'EOF'
-OPENROUTER_API_KEY=sk-or-...        # openrouter.ai/keys
 POLLINATIONS_API_KEY=...            # pollinations.ai
 CLOUDFLARE_API_TOKEN=...            # Workers AI token
 CLOUDFLARE_ACCOUNT_ID=...
@@ -98,7 +94,7 @@ cd /Users/yogeshdev/Documents/explainer-video-generation/explainroo
 
 NAME=my-first-fact          # project folder name
 TEMPLATE=youtube-random-facts
-BACKEND=--local             # --local | --pollinations | "--yes --cheap" | --yes
+BACKEND=--local             # --local | --perchance | --pollinations | --cloudflare
 
 npm install
 node bin/explainroo.js doctor --fetch
@@ -141,10 +137,10 @@ node bin/explainroo.js verify videos/<name>
 
 ```bash
 node bin/explainroo.js image videos/<name> chip "A single computer chip, flat vector sticker, plain pure white background, no text" --aspect 1:1 --model local --no-style
-node bin/explainroo.js images videos/<name>     # lists what was made and what it cost
+node bin/explainroo.js images videos/<name>     # lists what was made
 ```
 
-`--model` takes `best`, `cheap`, `local`, `pollinations`, `cloudflare`, `perchance`, or an OpenRouter model id.
+`--model` takes `local`, `pollinations`, `cloudflare` or `perchance`.
 
 ## Troubleshooting
 

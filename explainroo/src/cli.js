@@ -14,8 +14,7 @@ import { espeakVersion, misakiAvailable, phonemize, generateSpeech } from './pho
 import { writeWav } from './wav.js';
 import { ffmpegVersion } from './ffmpeg.js';
 import { findChrome } from './browser.js';
-import { generateImage, imageLog, imageSpend, IMAGE_MODELS } from './images.js';
-import { elevenVoices, elevenUsage, elevenSpeed } from './elevenlabs.js';
+import { generateImage, imageLog, IMAGE_MODELS } from './images.js';
 import { capture } from './capture.js';
 
 const VERSION = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')).version;
@@ -26,7 +25,7 @@ Usage: explainroo <command> [project] [options]
 
 Make a video
   init <dir>            create a project (--theme, --size, --pace, --language en|es|fr|it|pt-br|hi|ja|zh, --voice, --title)
-  voice [project]       make the narration (Kokoro, ElevenLabs or a recording) and word timings
+  voice [project]       make the narration (Kokoro or a recording) and word timings
   preview [project]     live preview in your browser, reloads on save (--port, --size)
   still [project] [t…]  PNG stills: "12.5", "scene", "scene@2.4" (default: end of every scene; --size, --transparent)
   sheet [project]       contact sheet of the whole video (--scene id, --every s, --size)
@@ -39,13 +38,13 @@ Make a video
 Product demos
   capture [project] <url>  save screenshots, wording, colors, fonts and logo of a live site (--mobile)
 
-Images (optional: --model local runs on this computer, perchance uses perchance.org in a Chrome window (free, no key), cloudflare uses Workers AI (CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID), pollinations needs POLLINATIONS_API_KEY, the others an OpenRouter API key)
+Images (optional: --model local runs on this computer, perchance uses perchance.org in a Chrome window (free, no key), cloudflare uses Workers AI (CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID), pollinations needs POLLINATIONS_API_KEY)
   image [project] <name> "<what to draw>"   save an illustration as assets/<name>.png
-                        (--model best|cheap|local|perchance|cloudflare|pollinations, --aspect 16:9, --ref assets/a.png,assets/b.png, --no-style)
-  images [project]      list generated images and what they cost
+                        (--model local|perchance|cloudflare|pollinations, --aspect 16:9, --no-style)
+  images [project]      list generated images
 
 Reference
-  voices [project]      list Kokoro voices (--language es for one language, --elevenlabs for your ElevenLabs key)
+  voices [project]      list Kokoro voices (--language es for one language)
   say "text"            hear a Kokoro voice (--voice am_michael, --speed 1, --out sample.wav)
   themes                list looks
   formats               list sizes for YouTube, Shorts, TikTok, Reels, Instagram, LinkedIn
@@ -72,7 +71,7 @@ function parseArgs(argv) {
   }
   return { pos, flags };
 }
-const BOOL = new Set(['json', 'draft', 'transparent', 'force', 'fetch', 'help', 'version', 'quiet', 'open', 'no-style', 'elevenlabs', 'mobile']);
+const BOOL = new Set(['json', 'draft', 'transparent', 'force', 'fetch', 'help', 'version', 'quiet', 'open', 'no-style', 'mobile']);
 
 function num(v, name) {
   if (v === undefined) return undefined;
@@ -113,9 +112,7 @@ export async function main(argv) {
       }
       case 'voice': {
         const project = loadProject(pos[0]);
-        const before = elevenUsage(project).length;
         const { voices, timeline } = await prepare(project, { log, force: !!flags.force });
-        const characters = elevenUsage(project).slice(before).reduce((n, e) => n + e.characters, 0);
         const rows = project.script.scenes.map((s) => {
           const v = voices[s.id];
           return { scene: s.id, voice: v.duration, confirmed: v.matchRate, unconfirmed: v.unmatched, marks: v.marks,
@@ -123,12 +120,7 @@ export async function main(argv) {
         });
         const mismatch = project.config.voice.provider === 'recording' && rows.some((r) => r.confirmed < 0.85)
           ? '\nThe recording does not match script.md in those scenes. Make script.md say what was actually said.' : '';
-        const isEleven = project.config.voice.provider === 'elevenlabs';
-        const wanted = project.config.speed * project.config.pace;
-        const speed = elevenSpeed(wanted);
-        const speedNote = isEleven && speed !== wanted ? `\nElevenLabs speed ${wanted.toFixed(2)} is outside 0.7 to 1.2; using ${speed}.` : '';
-        const usage = isEleven ? `\nElevenLabs: ${characters} characters used` : '';
-        print(rows.map((r) => `${r.scene.padEnd(18)} ${r.voice.toFixed(1).padStart(5)}s  ${Math.round(r.confirmed * 100)}% confirmed${r.unconfirmed.length ? '  unconfirmed: ' + r.unconfirmed.slice(0, 6).join(', ') : ''}`).join('\n') + `\ntotal ${timeline.duration.toFixed(1)}s` + mismatch + usage + speedNote, { scenes: rows, duration: timeline.duration, ...(isEleven ? { characters, speed, ...(speed !== wanted ? { requested_speed: wanted } : {}) } : {}) });
+        print(rows.map((r) => `${r.scene.padEnd(18)} ${r.voice.toFixed(1).padStart(5)}s  ${Math.round(r.confirmed * 100)}% confirmed${r.unconfirmed.length ? '  unconfirmed: ' + r.unconfirmed.slice(0, 6).join(', ') : ''}`).join('\n') + `\ntotal ${timeline.duration.toFixed(1)}s` + mismatch, { scenes: rows, duration: timeline.duration });
         return 0;
       }
       case 'preview': return await preview(pos[0], flags, log);
@@ -191,25 +183,21 @@ export async function main(argv) {
           style: flags['no-style'] ? false : flags.style,
           log,
         });
-        print(`${r.file}  ${r.model}  ${r.cost_usd !== null ? '$' + r.cost_usd.toFixed(4) : 'cost unknown'}  (images so far: $${r.total_usd.toFixed(4)})\nOpen the image and check it before you use it.`, r);
+        print(`${r.file}  ${r.model}\nOpen the image and check it before you use it.`, r);
         return 0;
       }
       case 'images': {
         const project = loadProject(pos[0]);
         const list = imageLog(project);
-        const total = imageSpend(project);
-        print(list.length ? list.map((e) => `${e.time.slice(0, 16)}  ${e.file.padEnd(28)} ${e.model.padEnd(32)} ${e.cost_usd !== null ? '$' + e.cost_usd.toFixed(4) : '?'}`).join('\n') + `\n${list.length} image request(s), $${total.toFixed(4)}` : 'no images generated yet', { images: list, total_usd: total, models: IMAGE_MODELS });
+        print(list.length ? list.map((e) => `${e.time.slice(0, 16)}  ${e.file.padEnd(28)} ${e.model}`).join('\n') + `\n${list.length} image request(s)` : 'no images generated yet', { images: list, models: IMAGE_MODELS });
         return 0;
       }
       case 'voices': {
         const language = textFlag(flags, 'language');
         if (language !== undefined) normalizeConfig({ language });
-        if (flags.elevenlabs) {
-          const voices = await elevenVoices(path.resolve(pos[0] || '.'));
-          print(voices.map((v) => `${v.name}  ${v.id}  ${Object.entries(v.labels).map(([k, x]) => `${k}: ${x}`).join(', ')}`).join('\n'), { voices });
-        } else {
+        {
           const voices = Object.fromEntries(Object.entries(VOICES).filter(([id]) => language === undefined || voiceLanguage(id) === language));
-          print(Object.entries(voices).map(([k, v]) => `${k.padEnd(12)} ${voiceLanguage(k).padEnd(6)} ${v}`).join('\n') + '\nUse voices --elevenlabs for ElevenLabs, or set voice to { "provider": "recording", "src": "assets/narration.wav" } in video.json.', { voices, languages: Object.fromEntries(Object.keys(voices).map(id => [id, voiceLanguage(id)])) });
+          print(Object.entries(voices).map(([k, v]) => `${k.padEnd(12)} ${voiceLanguage(k).padEnd(6)} ${v}`).join('\n') + '\nOr set voice to { "provider": "recording", "src": "assets/narration.wav" } in video.json.', { voices, languages: Object.fromEntries(Object.keys(voices).map(id => [id, voiceLanguage(id)])) });
         }
         return 0;
       }

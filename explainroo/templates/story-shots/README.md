@@ -20,7 +20,6 @@ you choose where it comes from:
 |---|---|---|
 | `scripts/shot-images.mjs <project> --local` (explainroo's `image` command with `--model local`: Z-Image-Turbo on this Mac) | free; about 2 minutes a picture at 576x1024 on an M2 with 16 GB; nothing leaves your computer | one-time setup: `sh setup-local-images.sh` in the repository root (about 6 GB); text-to-image only, so a recurring person is kept alike only by describing them the same way in every prompt |
 | `scripts/shot-images.mjs <project> --pollinations` (`--model pollinations`: hosted FLUX on pollinations.ai) | about 10 seconds a picture; needs `POLLINATIONS_API_KEY` in `explainroo/.env`; **prompts are sent to pollinations.ai**; text-to-image only | used for the `newcomen-short` test video |
-| `scripts/shot-images.mjs` (explainroo's `image` command, AI pictures through OpenRouter) | paid: about 7 to 13 cents a picture, about half with `--cheap`; the 14 sample shots are about $1 to $2 | needs an OpenRouter key; sends your prompts to that service; **not tested here, no key was available** |
 | Pictures you make or license elsewhere (any image tool, stock, your own photos) | depends | save as `assets/shot01.png` (or `.jpg`, `.webp`), 9:16 |
 | Short video clips (any image-to-video tool, stock footage, screen recordings) | depends | save as `assets/shot01.mp4` (or `.mov`, `.webm`); the clip plays as it is |
 
@@ -63,7 +62,7 @@ pictures will cost before making any.
 | `scenes.js` | turns the shot list into the video (you rarely edit it) |
 | `lib/shots.js` | the kit: `shots`, `vignette`, `hook`, `compare`, `captions` |
 | `video.json`, `look.json` | size, voice, music, `"captions": false` (the kit draws its own) |
-| `scripts/shot-images.mjs` | makes the missing pictures with explainroo's image command (asks for `--yes`) |
+| `scripts/shot-images.mjs` | makes the missing pictures with explainroo's image command (`--local`, `--perchance`, `--cloudflare`, `--pollinations`) |
 
 ## Camera moves for pictures
 
@@ -80,5 +79,5 @@ A clip is not moved; it plays. Options on a clip shot: `speed` (0.25 to 4) and
   models spell and count badly. Do not ask a picture for text.
 - The reference was mastered loud (-10 LUFS). This template targets -14 LUFS, a
   common level for social video; change `loudness` in video.json to match another.
-- Voices are explainroo's (Kokoro, or ElevenLabs with your own key). The
+- Voices are explainroo's (Kokoro, or your own recording). The
   reference's voice is not reproduced.

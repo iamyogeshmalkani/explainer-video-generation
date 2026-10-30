@@ -9,7 +9,6 @@ import { alignWords, readAlike } from './align.js';
 import { loadTTS, transcribeWords, TTS_MODEL, TTS_SAMPLE_RATE, ttsDtype, asrModel } from './models.js';
 import { phonemize, generateSpeech } from './phonemes.js';
 import { writeWav, readWav, resample, trimSilence, boostRegions } from './wav.js';
-import { elevenSpeech } from './elevenlabs.js';
 import { recordingFiles, decodeRecording, saveRecording, recordingCuts } from './recordings.js';
 
 const PIPELINE = 7;
@@ -126,7 +125,7 @@ async function synthesizeScene(project, scene, chunks, hash, tts, log) {
   let matchedTokens = 0;
   let totalTokens = 0;
 
-  const phonemes = config.voice.provider !== 'elevenlabs' && config.language !== 'en'
+  const phonemes = config.language !== 'en'
     ? await phonemize(chunks.map(c => c.text), config.language) : null;
   for (let ci = 0; ci < chunks.length; ci++) {
     const chunk = chunks[ci];
@@ -135,9 +134,7 @@ async function synthesizeScene(project, scene, chunks, hash, tts, log) {
       pieces.push(new Float32Array(Math.round(gap * sr)));
       cursor += Math.round(gap * sr);
     }
-    const audio = config.voice.provider === 'elevenlabs'
-      ? await elevenSpeech(project, scene.id, chunk.text, { previous: chunks[ci - 1]?.text, next: chunks[ci + 1]?.text })
-      : await generateSpeech(tts, chunk.text, { language: config.language, voice: config.voice, speed: config.speed * config.pace, phonemes: phonemes?.[ci] });
+    const audio = await generateSpeech(tts, chunk.text, { language: config.language, voice: config.voice, speed: config.speed * config.pace, phonemes: phonemes?.[ci] });
     const samples = trimSilence(audio.audio, audio.sampling_rate || sr);
     const start = cursor / sr;
     const dur = samples.length / sr;

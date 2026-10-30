@@ -171,8 +171,8 @@ export function normalizeConfig(raw, dir = '.') {
   if (typeof cfg.voice === 'object') {
     const v = cfg.voice;
     if (!v || Array.isArray(v)) fail('voice must be a Kokoro id or an object with provider');
-    const keys = { kokoro: ['provider', 'id'], elevenlabs: ['provider', 'id', 'model'], recording: ['provider', 'src'] };
-    if (typeof v.provider !== 'string' || !Object.hasOwn(keys, v.provider)) fail('voice.provider must be kokoro, elevenlabs or recording');
+    const keys = { kokoro: ['provider', 'id'], recording: ['provider', 'src'] };
+    if (typeof v.provider !== 'string' || !Object.hasOwn(keys, v.provider)) fail('voice.provider must be kokoro or recording');
     const extra = Object.keys(v).filter((k) => !keys[v.provider].includes(k));
     if (extra.length) fail(`voice has unknown setting(s): ${extra.join(', ')}. Known: ${keys[v.provider].join(', ')}`);
     if (v.provider === 'recording') {
@@ -181,10 +181,6 @@ export function normalizeConfig(raw, dir = '.') {
       }
     } else if (!(typeof v.id === 'string' && v.id.trim())) fail('voice.id is required');
     if (v.provider === 'kokoro') cfg.voice = v.id;
-    if (v.provider === 'elevenlabs') {
-      if (v.model !== undefined && !(typeof v.model === 'string' && v.model.trim())) fail('voice.model must be an ElevenLabs model id');
-      cfg.voice = { ...v, model: v.model ?? 'eleven_multilingual_v2' };
-    }
   }
   if (typeof cfg.voice === 'string') {
     if (!Object.hasOwn(VOICES, cfg.voice)) fail(`voice "${cfg.voice}" does not exist. Run "explainroo voices" for the list.`);
@@ -218,7 +214,7 @@ export function normalizeConfig(raw, dir = '.') {
     fail('watermark must be false or a short text of up to 40 characters, like "example.com"');
   }
   if (cfg.images !== null) {
-    if (typeof cfg.images !== 'object' || Array.isArray(cfg.images)) fail('images must be an object like { "model": "best", "style": "..." }');
+    if (typeof cfg.images !== 'object' || Array.isArray(cfg.images)) fail('images must be an object like { "model": "local", "style": "..." }');
     const extra = Object.keys(cfg.images).filter((k) => !['model', 'style'].includes(k));
     if (extra.length) fail(`images has unknown setting(s): ${extra.join(', ')}. Known: model, style`);
   }

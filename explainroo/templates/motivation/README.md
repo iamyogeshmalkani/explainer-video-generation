@@ -31,7 +31,7 @@ The paintings. The template does not make them:
 |---|---|
 | `scripts/shot-images.mjs <project> --pollinations` | hosted FLUX; needs `POLLINATIONS_API_KEY` in `explainroo/.env`; prompts are sent to pollinations.ai; about 10 seconds a painting |
 | `scripts/shot-images.mjs <project> --local` | free, on an Apple Silicon Mac; about 2 minutes a painting; needs `sh setup-local-images.sh` once |
-| `scripts/shot-images.mjs <project>` | paid OpenRouter pictures (needs `--yes` and a key) |
+| `scripts/shot-images.mjs <project>` | makes the pictures (`--local`, `--perchance`, `--cloudflare`, `--pollinations`) |
 | Your own pictures | save as `assets/shot01.jpg` (or `.png`, `.webp`), landscape 3:2 |
 
 Public-domain paintings (museums publish many) also work and look the most authentic. Until

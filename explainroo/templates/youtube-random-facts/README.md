@@ -52,7 +52,7 @@ Hindi voices (set `"voice"` in `video.json`; `node bin/explainroo.js voices --la
 | `hf_alpha` | Hindi, female (the default when `voice` is left out) |
 | `hf_beta` | Hindi, female |
 
-ElevenLabs and your own recording also work for Hindi (see `AGENTS.md`).
+Your own recording also works for Hindi (see `AGENTS.md`).
 
 Notes for Hindi:
 - Needs `espeak-ng` (`brew install espeak-ng`).

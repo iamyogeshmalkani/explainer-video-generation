@@ -63,7 +63,7 @@ explainroo does the rest:
 - **Voice.** [Kokoro](https://huggingface.co/hexgrad/Kokoro-82M), an open
   voice model, reads the script aloud in English, Spanish, French, Italian,
   Brazilian Portuguese, Hindi, Japanese or Mandarin Chinese. It has 54 voices
-  and needs no account or API key. You can also use an [ElevenLabs](https://elevenlabs.io) voice or
+  and needs no account or API key. You can also
   record the narration yourself.
 - **Timing.** [Whisper](https://github.com/openai/whisper) listens to the
   narration and notes when each word is spoken.
@@ -90,8 +90,8 @@ check finds words the voice got wrong. For a feed-sized player,
 
 None of this leaves your computer, and it costs nothing. Your coding agent is
 a separate service with its own terms and prices. If you want, the agent can
-also make illustrations with an AI image model through OpenRouter, and you pay
-for each image.
+also make illustrations with a free local or Perchance image maker, or with
+Cloudflare Workers AI or Pollinations if you have a key.
 
 ## Looks
 

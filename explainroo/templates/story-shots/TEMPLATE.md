@@ -46,8 +46,7 @@ roughly 2.6 words a second, mastered at -10 LUFS with music under the voice).
    `scripts/shot-images.mjs <project> --local`: free, about 2 minutes a picture, and
    nothing leaves the computer. Describe each recurring person with the same words in
    every prompt (the local model takes no `--ref`). Otherwise run `scripts/shot-images.mjs ... --dry-run`, tell the user the
-   number of pictures and the cost, and make them only after the user agrees
-   (needs `--yes` and an OpenRouter key). Open every picture; remake wrong ones
+   number of pictures, and make them with a free maker (`--local` or `--perchance`). Open every picture; remake wrong ones
    (wrong hands, wrong period details, invented text). Or use the user's own
    pictures and clips.
 7. **Look.** `sheet --every 3` and `still` at the title card, a board and the

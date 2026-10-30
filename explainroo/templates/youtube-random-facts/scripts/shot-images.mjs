@@ -8,9 +8,7 @@
 //   node scripts/shot-images.mjs <project-folder> --cloudflare [--only 3,5,7]   Cloudflare Workers AI; needs CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID in .env; prompts are sent to Cloudflare
 //   node scripts/shot-images.mjs <project-folder> --all [--only 3,5,7]         local, Perchance and Cloudflare at the same time
 //   node scripts/shot-images.mjs <project-folder> --pollinations [--only 3,5,7] fast, hosted FLUX; needs POLLINATIONS_API_KEY; prompts are sent to pollinations.ai
-//   node scripts/shot-images.mjs <project-folder> --yes [--cheap] [--only 3,5,7]  OpenRouter: COSTS MONEY (about 7 to 13 cents a picture, about half with --cheap)
 //
-// OpenRouter needs OPENROUTER_API_KEY in the environment or in a .env file (never put it in a script).
 // With --both or --all the lanes share one list of missing pictures, so the faster lane does more of them. The
 // models draw in slightly different styles; if the video looks uneven, remake the odd ones with one model
 // (delete the file, run again with --only). Look at every picture afterwards: picture models get details wrong.
@@ -32,7 +30,7 @@ const have = (base) => ['png', 'jpg', 'jpeg', 'webp', 'mp4', 'mov', 'webm', 'm4v
 const todo = SHOTS.filter((s) => !have(s.file) && (!only || only.includes(s.n)));
 
 const lanes = flag('all') ? ['perchance', 'cloudflare', 'local'] : flag('both') ? ['perchance', 'local']
-  : [flag('perchance') ? 'perchance' : flag('cloudflare') ? 'cloudflare' : flag('pollinations') ? 'pollinations' : flag('local') ? 'local' : flag('cheap') ? 'cheap' : 'best'];
+  : [flag('perchance') ? 'perchance' : flag('cloudflare') ? 'cloudflare' : flag('pollinations') ? 'pollinations' : flag('local') ? 'local' : 'perchance'];
 const multi = lanes.length > 1;
 const free = lanes.every((m) => ['local', 'perchance', 'cloudflare', 'pollinations'].includes(m));
 const describe = {
@@ -44,9 +42,8 @@ const describe = {
 
 if (multi) console.log(`${todo.length} picture(s) to make, ${lanes.length} at a time (${lanes.join(', ')}), each lane taking the next missing picture.`);
 else if (describe[lanes[0]]) console.log(`${todo.length} picture(s) to make ${describe[lanes[0]]}.`);
-else console.log(`${todo.length} picture(s) to make with --model ${lanes[0]}; about ${(todo.length * (lanes[0] === 'best' ? 0.07 : 0.035)).toFixed(2)} to ${(todo.length * (lanes[0] === 'best' ? 0.13 : 0.065)).toFixed(2)} dollars (estimate).`);
 for (const s of todo) console.log(`  shot ${String(s.n).padStart(2, '0')}  ${s.file}: ${s.prompt}`);
-if (flag('dry-run') || !(free || flag('yes'))) { console.log(flag('dry-run') ? '\n(dry run: nothing was made)' : '\nAdd --yes to make them.'); process.exit(0); }
+if (flag('dry-run')) { console.log('\n(dry run: nothing was made)'); process.exit(0); }
 
 // Runs `explainroo image` for one shot with one model; every output line is tagged with the lane name when two lanes run.
 function makeOne(shot, model) {

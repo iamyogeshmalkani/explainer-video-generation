@@ -7,12 +7,12 @@ the words and the pictures. explainroo makes the video.
 explainroo turns two files into an MP4 video with narration. `script.md`
 holds what the voice says. `scenes.js` draws what the viewer sees. Every
 drawing can appear on a word the voice says. A voice model (Kokoro) reads
-the script on this computer, or the narration comes from ElevenLabs or your
+the script on this computer, or the narration comes from your
 own recording. Whisper listens to the narration and writes down when each
 word is spoken. Chrome draws the frames in the background.
 explainroo adds music and sound effects, and ffmpeg makes the MP4. You need
-no API key for local voices or recordings. ElevenLabs and AI images need
-keys.
+no API key for local voices or recordings. Cloud picture makers
+(Cloudflare, Pollinations) need keys; local and Perchance pictures need none.
 
 The full documentation for people is at https://www.explainroo.com/docs/.
 
@@ -49,8 +49,7 @@ layout and the wording. Ask only when you cannot go on without an answer.
 When you ask, put everything you need in one message. Typical reasons to ask:
 
 - The topic is unclear, or you need a fact you cannot check.
-- The user wants AI images and there is no OpenRouter key (see Images).
-- The user wants ElevenLabs and there is no ElevenLabs key (see Voices).
+- The user wants cloud AI images (Cloudflare or Pollinations) and there is no key (see Images).
 - The user wants something explainroo cannot do, like video shot with a
   camera.
 
@@ -187,7 +186,7 @@ something to a friend at a table.
   `[loud]...[/loud]`: the first words of the intro (the hook), key names, numbers and dates, the turning point and
   the closing point. The voice gets about 4 dB more level on those words only (`emphasisDb` in `video.json`, 0 to 9).
   Use it sparingly, 3 to 6 spots of 1 to 4 words, never a whole paragraph, or nothing stands out. Do not use it
-  across paragraphs. It works with the Kokoro and ElevenLabs voices; a recording keeps its own delivery.
+  across paragraphs. It works with the Kokoro voices; a recording keeps its own delivery.
 
 Length and pace:
 
@@ -382,31 +381,6 @@ Kokoro runs on this computer and needs no key. Pick a voice with
 
 `{ "provider": "kokoro", "id": "af_heart" }` means the same thing.
 
-ElevenLabs offers premium and cloned voices. It costs money on the user's
-account and receives the script text. If the user wants it and there is no
-key, ask them for an API key from elevenlabs.io. Set `ELEVENLABS_API_KEY` in
-the environment, or save `ELEVENLABS_API_KEY=...` in a `.env` file in the
-project folder or the explainroo folder. The environment takes priority,
-then the project file. Never print the key, and never put it in a script,
-a commit or a log. Keep `.env` out of git.
-
-```bash
-node bin/explainroo.js voices videos/<name> --elevenlabs
-node bin/explainroo.js voices videos/<name> --elevenlabs --json
-```
-
-The list shows the names, ids and labels available to that key. Use an id
-in `video.json`:
-
-```json
-"voice": { "provider": "elevenlabs", "id": "JBFqnCBsd6RMkjVDRZzb", "model": "eleven_multilingual_v2" }
-```
-
-`model` is optional and defaults to `eleven_multilingual_v2`. The voice
-command reports the characters used. Each request is saved in
-`build/voice/elevenlabs-usage.jsonl`, without the key or script text.
-ElevenLabs uses `speed` times `pace`, limited to 0.7 through 1.2.
-The voice command tells you when it uses that limit.
 
 You can also record the narration yourself. Use a quiet room and read
 script.md as written. Put one take for the whole video in `assets/`:
@@ -438,7 +412,7 @@ speech check reports a mismatch, make script.md say what was actually said.
 Replacing a scene recording makes that scene again. Replacing a whole take
 makes all its scenes again.
 
-ElevenLabs narration and recordings work in every supported language.
+Recordings work in every supported language.
 Run `voice`, `check` and `render` as usual with any of the three sources.
 
 ## Videos in other languages
@@ -477,7 +451,7 @@ with `sudo apt install espeak-ng`, or on macOS with `brew install espeak-ng`.
 On Windows, use the installer from the
 [espeak-ng releases page](https://github.com/espeak-ng/espeak-ng/releases).
 If the program is in another place, set `EXPLAINROO_ESPEAK` to its binary.
-English, Japanese, Chinese, ElevenLabs and recordings do not need it.
+English, Japanese, Chinese and recordings do not need it.
 
 ### Japanese and Chinese
 
@@ -492,7 +466,7 @@ python3 -m pip install "misaki[zh]"   # Chinese
 
 On Windows, write `python` instead of `python3`. If misaki is in a virtual
 environment, set `EXPLAINROO_PYTHON` to that environment's Python.
-ElevenLabs and recordings need neither.
+Recordings need neither.
 
 Write the narration as usual, without spaces between words. explainroo
 finds the words itself, so cue words and markers work: `at: '解析'` matches
@@ -542,34 +516,29 @@ when the user hears it wrong.
 
 ## Images
 
-explainroo can make illustrations with AI image models through OpenRouter.
-This is optional. It costs money on the user's OpenRouter account, roughly 7
-to 13 cents per image at the time of writing.
-
-If the user wants images and there is no key, ask them for an OpenRouter API
-key (from openrouter.ai/keys). Save it in a `.env` file in the explainroo
-folder as `OPENROUTER_API_KEY=...`, or set it as an environment variable. Git
-ignores `.env`. Never print the key, and never put it in a script, a commit
+explainroo can make illustrations with AI image models. This is optional.
+`--model local` runs on this computer (Apple Silicon, free), `--model perchance`
+uses perchance.org in a Chrome window (free, no key), `--model cloudflare` uses
+Cloudflare Workers AI (`CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`, free
+daily allowance) and `--model pollinations` uses `POLLINATIONS_API_KEY`. Save keys
+in a `.env` file in the explainroo folder, or set them as environment variables.
+Git ignores `.env`. Never print a key, and never put it in a script, a commit
 or a log.
 
 ```bash
 node bin/explainroo.js image videos/<name> cables "Two cars parked nose to nose with their hoods open, jumper cables between the batteries"
-node bin/explainroo.js images videos/<name>    # what was made and what it cost
+node bin/explainroo.js images videos/<name>    # what was made
 ```
 
 This saves `assets/cables.png`. Use it in a scene with
 `s.image('assets/cables.png', { w: 1100, frame: 'card', at: 'cables' })`.
 
-- `--model best` (default) uses OpenAI GPT Image 2. It does what you ask and
-  is worth the price for most images.
-- `--model cheap` uses Google Gemini 3.1 Flash Image. It costs about half,
-  but it often ignores parts of the prompt.
+- `--model` picks the maker: `local`, `perchance` (default), `cloudflare` or
+  `pollinations`. They draw in slightly different styles; keep one per video.
 - `--aspect` sets the shape of the image: `16:9` (default for landscape
   videos), `9:16`, `1:1`, `4:3`, `3:2` and their portrait forms.
-- `--ref assets/a.png` sends an earlier image along, so a person or object
-  keeps the same look. Separate several files with commas.
 - Every image gets a default style (flat, soft colors, no text). Set your own
-  in `video.json` with `"images": { "style": "...", "model": "best" }`, or
+  in `video.json` with `"images": { "style": "...", "model": "local" }`, or
   turn the style off with `--no-style`.
 
 **Always open every image and check it.** Image models get details wrong:
@@ -869,8 +838,8 @@ videos/<name>/
 | `size` | `16:9` | a platform (`youtube`, `shorts`, `tiktok`, `reels`, `vertical`, `instagram`, `linkedin`, `square`), `16:9`, `9:16`, `1:1`, `4:5` or `WIDTHxHEIGHT` |
 | `fps` | 30 | 24, 25, 30, 50 or 60 |
 | `language` | `en` | narration language: `en`, `es`, `fr`, `it`, `pt-br`, `hi`, `ja` or `zh`; see Videos in other languages |
-| `voice` | the language's voice | a Kokoro id or a provider object for Kokoro, ElevenLabs or a recording; English uses `af_heart`; see Voices |
-| `speed` | 0.9 for Kokoro, 1 otherwise | voice speed only, 0.6 to 1.6; ElevenLabs limits speed times pace to 0.7 through 1.2 |
+| `voice` | the language's voice | a Kokoro id or a provider object for Kokoro or a recording; English uses `af_heart`; see Voices |
+| `speed` | 0.9 for Kokoro, 1 otherwise | voice speed only, 0.6 to 1.6 |
 | `pace` | 1 | speed of the whole video (voice, pauses, animations), 0.7 to 1.6 |
 | `music` | `true` | `true` (the look's style), `warm`, `upbeat`, `calm`, `tech`, `playful`, `cinematic` (dark drums and drone, stoic or motivational), `epic` (war-score strings, low ostinato and taiko, battles and dark history), `inspiring` (sparse piano that grows over legato strings, a soft beat at the climax, major key; founder stories and biographies), `{ "style", "volume", "duck" }` or `false`; `duck` is how many dB the music dips under the narration (default -8, `cinematic` -3) |
 | `sfx` | `true` | sound effects: `true`, `"minimal"` or `false` |
@@ -885,7 +854,7 @@ videos/<name>/
 | `loudness` | -14 | target loudness in LUFS |
 | `boil` | 0 | redraws per second of hand-drawn lines; 0 keeps them still |
 | `watermark` | `"explainroo.com"` | small text in a corner, or `false` |
-| `images` | none | `{ "model": "best" or "cheap", "style": "..." }` |
+| `images` | none | `{ "model": "local", "perchance", "cloudflare" or "pollinations", "style": "..." }` |
 | `brand` | none | colors, fonts and logo for `s.ui`, see [Product demos](#product-demos) |
 | `fonts` | none | the video's own font files, see [Product demos](#product-demos) |
 
@@ -959,10 +928,9 @@ when `ink` or `muted` has too little contrast against `bg`.
 | `verify [project]` | checks the finished MP4, WebM or MOV: loudness, black frames, silence, clear voice (`--file` picks another file) |
 | `export [project]` | writes a web player folder (`--out dir`, `--json`), by default `out/player/` |
 | `capture [project] <url>` | saves screenshots, wording, colors, fonts and logos from a live site (`--mobile`, `--json`) |
-| `image [project] <name> "<prompt>"` | makes an illustration with OpenRouter |
+| `image [project] <name> "<prompt>"` | makes an illustration (local, Perchance, Cloudflare or Pollinations) |
 | `images [project]` | lists the images and what they cost |
 | `voices`, `say "text"` | lists Kokoro voices with their languages (`--language es`, `ja` or `zh` filters voices), or makes a sample in the chosen voice's language |
-| `voices [project] --elevenlabs` | lists the names, ids and labels available to the key (`--json` also works) |
 | `themes`, `formats`, `icons <word>` | lists the looks and the sizes, searches the 1,854 icons |
 | `doctor` | checks Node, ffmpeg, Chrome, the models, and espeak-ng and Python with misaki for other languages (`--fetch` downloads only English models) |
 

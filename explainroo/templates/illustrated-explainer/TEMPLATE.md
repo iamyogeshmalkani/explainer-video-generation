@@ -59,7 +59,7 @@ storyteller and video editor. Whatever the topic, turn it into an engaging, easy
    (sepia ink-and-wash for history; a clean flat-color diagram style for science and business).
 5. **Voice and check.** `voice`, then `check`. Fix every error and warning. Listen for names before respelling.
 6. **Pictures.** Make them with `scripts/shot-images.mjs` (the flag the user chose: `--local`, `--perchance`,
-   `--both`...). Never use `--yes` or OpenRouter, it costs money. Open every picture: remake any with wrong hands,
+   `--both`...). Use only the free makers or the user's own Cloudflare or Pollinations key. Open every picture: remake any with wrong hands,
    wrong period details, invented text or a different style from the others (delete the file, run with `--only`).
    Or use the user's own pictures and clips.
 7. **Depth.** If the shot list uses `parallax*` moves and `setup-depth.sh` has been run (check that

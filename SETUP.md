@@ -56,7 +56,7 @@ history-map template".
 | Voice and speech models | about 400 MB, downloaded from Hugging Face | `setup.sh`, or `explainroo doctor --fetch` |
 | Hindi and other-language speech model | about 250 MB, fetched on first use | automatic on the first `voice` run |
 | `node_modules` | installed by npm | `sh setup.sh` |
-| API keys | secrets must never be committed | put `OPENROUTER_API_KEY=...` or `ELEVENLABS_API_KEY=...` in a `.env` file in `explainroo/` (it is git-ignored). Only needed for paid AI pictures or ElevenLabs voices. |
+| API keys | secrets must never be committed | put `CLOUDFLARE_API_TOKEN=...` and `CLOUDFLARE_ACCOUNT_ID=...` (Cloudflare Workers AI pictures) or `POLLINATIONS_API_KEY=...` in a `.env` file in `explainroo/` (it is git-ignored). Both are optional: local and Perchance pictures and the Kokoro voice need no key. |
 | Reference videos and frames | taken from other people's videos | not needed to make videos |
 
 Apple Silicon and Intel Macs both work: `env.sh` picks the right ffprobe.
@@ -78,8 +78,8 @@ Apple Silicon and Intel Macs both work: `env.sh` picks the right ffprobe.
   short clips (LTX-Video on a free GPU), and `scripts/colab-clips.mjs pack|unpack` moves pictures and clips to and from
   it. See `explainroo/colab/README.md`. Not yet run on a real Colab GPU.
 - **Voices**: `explainroo voices` lists Kokoro's 54 voices; set one in `video.json`.
-- **Paid extras** (never run without checking the cost): `explainroo image` and
-  `templates/story-shots/scripts/shot-images.mjs` make AI pictures through OpenRouter.
+- **Pictures**: `explainroo image` and each template's `scripts/shot-images.mjs` make AI pictures
+  with `--local`, `--perchance`, `--cloudflare` or `--pollinations` (see `explainroo/SETUP-IMAGES.md`).
 - **Pictures for the story-shots template** must be supplied; until then each shot
   shows a placeholder.
 - **Subtitles low on the frame**: the history-map and story-shots templates draw
