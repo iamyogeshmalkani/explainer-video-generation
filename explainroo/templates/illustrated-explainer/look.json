@@ -1,0 +1,16 @@
+{
+  "extends": "midnight",
+  "name": "illustrated-explainer",
+  "bg": "#120d08",
+  "ink": "#fff8ec",
+  "muted": "#d8c7a3",
+  "accent": "yellow",
+  "colors": { "yellow": "#e8b95a", "red": "#c8543f" },
+  "fonts": {
+    "display": { "family": "Instrument Serif", "weight": 400 },
+    "body": { "family": "Plus Jakarta Sans", "weight": 600 }
+  },
+  "background": "plain",
+  "music": "calm",
+  "transition": "cut"
+}

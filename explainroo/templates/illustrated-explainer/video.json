@@ -1,0 +1,16 @@
+{
+  "title": "When the Black Death hit England",
+  "theme": "look.json",
+  "size": "9:16",
+  "voice": "bm_george",
+  "pace": 1.05,
+  "music": { "style": "calm", "volume": 0.4 },
+  "sfx": "minimal",
+  "captions": false,
+  "camera": "still",
+  "motionBlur": false,
+  "cover": 1,
+  "loudness": -14,
+  "watermark": false,
+  "images": { "model": "best", "style": "hand-inked comic book illustration with warm sepia watercolor wash, painterly parchment tones, golden cinematic light, detailed linework, 14th century England, vertical 9:16, no text, no letters, no signs, no logos" }
+}
