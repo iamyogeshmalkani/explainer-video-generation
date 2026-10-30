@@ -1,0 +1,21 @@
+{
+  "title": "The Great Fire of London",
+  "theme": "look.json",
+  "size": "9:16",
+  "voice": "bm_george",
+  "pace": 1.0,
+  "music": {
+    "style": "cinematic",
+    "volume": 0.3
+  },
+  "sfx": "minimal",
+  "captions": false,
+  "camera": "still",
+  "motionBlur": false,
+  "cover": 1,
+  "watermark": false,
+  "images": {
+    "model": "local",
+    "style": "handmade claymation miniature set, plasticine, soft clay texture, warm studio lighting, vertical 9:16, no text, no logos"
+  }
+}

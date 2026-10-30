@@ -1,0 +1,15 @@
+{
+  "title": "Why does bread rise?",
+  "theme": "look.json",
+  "size": "9:16",
+  "voice": "af_heart",
+  "pace": 1.0,
+  "music": { "style": "playful", "volume": 0.45 },
+  "sfx": "minimal",
+  "captions": false,
+  "camera": "still",
+  "motionBlur": false,
+  "cover": 1,
+  "watermark": false,
+  "images": { "model": "local", "style": "handmade claymation miniature set, plasticine, soft clay texture, warm studio lighting, vertical 9:16, no text, no logos" }
+}

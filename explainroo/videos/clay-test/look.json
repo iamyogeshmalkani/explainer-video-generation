@@ -1,0 +1,16 @@
+{
+  "extends": "paper",
+  "name": "clay-stopmotion",
+  "bg": "#f1dcc0",
+  "ink": "#4a2c17",
+  "muted": "#8a6a4d",
+  "accent": "orange",
+  "colors": { "orange": "#ff9a2e", "teal": "#35c2b0", "red": "#e5533d" },
+  "fonts": {
+    "display": { "family": "Kalam", "weight": 700 },
+    "body": { "family": "Kalam", "weight": 700 }
+  },
+  "background": "plain",
+  "music": "playful",
+  "transition": "cut"
+}
