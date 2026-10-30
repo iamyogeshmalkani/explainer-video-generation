@@ -41,7 +41,7 @@ order and stop to ask if a step says so.
    `git reset --hard`, `git checkout .`, `git restore .`, `git clean`, `git push --force`, deleting branches or
    stashes, `rm -rf` on `explainroo/videos/`, and anything that edits or prints `explainroo/.env` (it holds the
    user's keys; it is git-ignored and must stay untouched).
-   Do **not push** to the shared repository. Users only pull; the publisher owns `main`.
+   Pushing is allowed when the user asks, but treat it as outward-facing: see "When the user asks to push" below.
 
 6. **Finish the job.**
    - If `package.json`, `package-lock.json` or `setup.sh` changed, run `sh setup.sh` (it is safe to repeat).
@@ -50,6 +50,23 @@ order and stop to ask if a step says so.
    - Report in plain language: which templates are new (`explainroo/templates/<name>`), which were updated, any
      tool or setup changes, and any of the user's files you kept or moved aside. Mention the backup branch name and
      how to go back to it if something looks wrong.
+
+## When the user asks to push
+
+Users can both pull and push. Because many people share `origin/main`, merge carefully in both directions.
+
+1. **Pull first.** Run the sync steps above so the user's work sits on top of the latest `origin/main`. Never push
+   from a stale clone.
+2. **Show what will go out.** `git status --short`, `git log --oneline origin/main..HEAD` and
+   `git diff --name-status origin/main...HEAD`. Tell the user in plain language what is being published.
+3. **Stage only what the user means.** Add specific paths, never `git add -A`. Never commit `explainroo/.env`,
+   `explainroo/videos/*/out/`, `build/` folders or other large rendered files.
+4. **Merge, never rewrite.** Use a normal merge to combine histories. No rebase, no `git push --force` (or
+   `--force-with-lease`) unless the user explicitly asks for that exact action.
+5. **Push with a plain `git push origin <branch>`.** If it is rejected because `origin` has newer commits, do not
+   force it: go back to step 1, merge the new changes carefully (keep both sides, ask if unsure), then push again.
+6. **Confirm and report** what was pushed and the resulting commit. If the user is not the publisher and is
+   pushing to `main`, suggest a branch (and a pull request) instead, and ask which they want.
 
 ## Things that stay on this computer
 
