@@ -39,55 +39,6 @@ const childEnv = () => {
   return env;
 };
 
-// ---------- updates: templates and tools come from the project's GitHub repository ----------
-
-function git(args, timeout = 30000) {
-  const r = spawnSync('git', args, { cwd: ROOT, encoding: 'utf8', timeout, env: { ...process.env, GIT_TERMINAL_PROMPT: '0' } });
-  return { ok: r.status === 0, out: (r.stdout || '').trim(), err: (r.stderr || r.error?.message || '').trim() };
-}
-
-// The branch to follow: this clone's upstream, or origin/main.
-function updateRef() {
-  const u = git(['rev-parse', '--abbrev-ref', '--symbolic-full-name', '@{u}']);
-  return u.ok && u.out ? u.out : 'origin/main';
-}
-
-function checkUpdates() {
-  if (!fs.existsSync(path.join(ROOT, '.git'))) return { error: 'This copy was not cloned with git, so it cannot update itself. Clone the repository again to get updates.' };
-  const ref = updateRef();
-  const remote = ref.split('/')[0];
-  const f = git(['fetch', '--quiet', remote], 60000);
-  if (!f.ok) return { error: `Could not reach GitHub (${f.err.split('\n')[0] || 'no answer'}). Check your internet connection, and that you have access to the repository.` };
-  const behind = Number(git(['rev-list', '--count', `HEAD..${ref}`]).out) || 0;
-  const ahead = Number(git(['rev-list', '--count', `${ref}..HEAD`]).out) || 0;
-  const files = behind ? git(['diff', '--name-only', `HEAD...${ref}`]).out.split('\n').filter(Boolean) : [];
-  const tplDirs = new Set(files.filter((f) => f.startsWith('explainroo/templates/')).map((f) => f.split('/')[2]).filter((n) => n && !n.endsWith('.md')));
-  const templates = [...tplDirs].map((id) => ({ id, isNew: !fs.existsSync(path.join(TEMPLATES, id)) }));
-  return {
-    ref, behind, ahead, templates,
-    changes: files.length,
-    needsSetup: files.some((f) => /(^|\/)package(-lock)?\.json$|^setup\.sh$/.test(f)),
-    needsRestart: files.some((f) => f.startsWith('ui/')),
-    log: behind ? git(['log', '--format=%s', '-n', '8', `HEAD..${ref}`]).out.split('\n') : [],
-  };
-}
-
-function applyUpdates() {
-  if ([...jobs.values()].some((j) => j.status === 'queued' || j.status === 'running')) throw new HttpError(409, 'A video is being made. Wait for it to finish, then update.');
-  const info = checkUpdates();
-  if (info.error) throw new HttpError(502, info.error);
-  if (!info.behind) return { ...info, updated: false };
-  const m = git(['merge', '--ff-only', info.ref], 120000);
-  if (!m.ok) {
-    const dirty = /would be overwritten|local changes/i.test(m.err);
-    throw new HttpError(409, dirty
-      ? 'You have changed files that the update also changes (for example a template you edited). Copy your changes somewhere safe, run "git stash" in the project folder, update again, then "git stash pop".'
-      : `The update could not be applied: ${m.err.split('\n')[0]}`);
-  }
-  voiceCache = null;
-  return { ...info, updated: true };
-}
-
 // ---------- templates, voices, library ----------
 
 function readTemplates() {
@@ -706,9 +657,6 @@ const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
   const p = url.pathname;
   try {
-    if (req.method === 'POST' && p === '/api/update') {
-      try { return json(res, 200, applyUpdates()); } catch (e) { if (e instanceof HttpError) return json(res, e.code, { error: e.message }); throw e; }
-    }
     if (req.method === 'GET' && p === '/api/config') return json(res, 200, { templates: readTemplates(), voices: readVoices(), lengths: LENGTHS, cloudflare: cloudflareReady() });
     let vm = p.match(/^\/api\/voices\/(\w+)\/sample\.wav$/);
     if (vm && req.method === 'GET') {
