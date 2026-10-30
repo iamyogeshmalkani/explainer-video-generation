@@ -9,16 +9,20 @@ export default {
     const k = kit(s);
     const t = (m, d = 0) => k.T(m, d);
 
-    // 1. An app talks to a server through an API (s1 to s3)
-    k.pic('phone', { id: 'app', x: 0.5, y: 0.2, w: 0.4, label: 'App', at: 0, out: '#s3' });
-    k.pic('server', { id: 'srv', x: 0.5, y: 0.8, w: 0.42, label: 'Server', at: 'server', out: '#s3' });
-    k.link('app', 'srv', { pair: true, label: 'API', block: true, at: '#s2', out: '#s3' });
+    // 1. The topic name and what it stands for (s1 to s2)
+    k.title('API', { y: 0.18, wave: true, at: 0, out: '#s3' });
+    k.lines(['Application', 'Programming', 'Interface'], { y: 0.42, gap: 0.11, size: 8.5, stagger: 0.4, at: '#s2', out: '#s3' });
 
     // 2. An API is a menu (s3)
-    k.pic('menu', { x: 0.5, y: 0.3, w: 0.64, label: '[API] menu', at: '#s3', out: '#s4' });
-    k.lines(['[GET] /weather', '[GET] /forecast', '[POST] /login'], { y: 0.7, gap: 0.09, size: 7, stagger: 0.6, at: t('#s3', 1), out: '#s4' });
+    k.pic('menu', { x: 0.5, y: 0.3, w: 0.64, label: '[API] menu', at: '#s3', out: '#old' });
+    k.lines(['[GET] /weather', '[GET] /forecast', '[POST] /login'], { y: 0.7, gap: 0.09, size: 7, stagger: 0.6, at: t('#s3', 1), out: '#old' });
 
-    // 3. The client sends a request to the server (s4 to s5)
+    // 2b. A little history (old, year)
+    k.lines(['The idea is *old*'], { y: 0.2, size: 7.5, at: '#old', out: '#s4' });
+    k.lines(['[1960s]'], { y: 0.42, size: 14, at: '#year', out: '#s4' });
+    k.sticker('clock', { x: 0.82, y: 0.62, size: 17, color: 'yellow', rotate: 8, at: t('#year', 0.5), out: '#s4' });
+
+    // 3. Today: the client sends a request to the server (s4 to s5)
     k.pic('phone', { id: 'client', x: 0.26, y: 0.2, w: 0.3, label: 'Client', at: '#s4', out: '#s6' });
     k.pic('server', { id: 'server2', x: 0.74, y: 0.2, w: 0.34, label: 'Server', at: t('#s5', 0.6), out: '#s6' });
     k.pic('envelope', { id: 'req', x: 0.5, y: 0.53, w: 0.4, label: 'Request', at: '#s5', out: '#s6', from: 'slap' });

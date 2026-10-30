@@ -20,6 +20,7 @@ A 39 second vertical video (720 x 1280, 25 fps, about 100 spoken words, loudness
   it, then the screen is cleared or rearranged for the next idea.
 - **Opening**: the title: the topic in big green letters that
   bounce in, followed by lines such as "Architectural / Design / Pattern" blurring in.
+  The voice says the topic name first (see Script shape below), never an example or a story.
 - **Motifs**: an app card with a notch, a code card with pink keys, an icon next to a
   label (database, server, lock), dashed lines between boxes, a finger tapping.
 - **Pictures and connections**: the ideas are real pictures (`k.pic`) cut out with a white edge, not
@@ -30,6 +31,21 @@ A 39 second vertical video (720 x 1280, 25 fps, about 100 spoken words, loudness
   One or two per screen, at a corner or in a gap. The sample video shows how.
 - **Words**: plain and short, one idea per sentence, about 2.6 words a second.
 
+## Script shape (every topic)
+
+The script is simple and always in this order. This overrides the general "open with a hook" advice in
+`AGENTS.md`: for this template the topic name is the hook.
+
+1. **Say the topic.** The first sentence is just the name, e.g. "{REST|rest} {API|A P I}s." The title
+   appears on it. Do not open with an example, a scenario or a question (no "your weather app...").
+2. **What it is.** One or two plain sentences: what the name stands for, then what it means in simple words.
+3. **Where it comes from.** One or two sentences of history: who made it or when it started, and why. Only facts
+   you can check; if the origin is unclear or disputed, say less rather than guess.
+4. **How it works.** Now, and only now, an example or a walk through the steps, 4 to 6 short sentences.
+5. **One closing line** that sums it up.
+
+Keep every sentence short and in everyday words. No jokes, no analogy before the definition.
+
 ## Steps
 
 1. **Pick one idea.** A video explains one thing: one pattern, one request, one bug.
@@ -37,7 +53,8 @@ A 39 second vertical video (720 x 1280, 25 fps, about 100 spoken words, loudness
    invent a number, a name or a status code.
 2. **Copy the template**: `scripts/new-video.sh tech-explainer <name>`. Delete the sample pictures in
    `assets/` that the new video does not use.
-3. **Write `script.md`.** One scene, `story`. 90 to 130 words for 35 to 50 seconds.
+3. **Write `script.md`.** One scene, `story`. 90 to 130 words for 35 to 50 seconds. Follow the
+   Script shape above: name, meaning, history, then how it works.
    Put `[#s1]`, `[#s2]` ... at the start of each sentence, and extra markers
    (`[#method]`, `[#status]`) where something should appear inside a sentence. Respell
    acronyms and numbers: `{API|A P I}`, `{404|four oh four}`.

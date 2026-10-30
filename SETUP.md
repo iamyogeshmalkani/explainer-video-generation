@@ -74,6 +74,9 @@ Apple Silicon and Intel Macs both work: `env.sh` picks the right ffprobe.
   near-lossless frames and a slow, low-compression encode. About 4 times the file size (a 50 second 1080x1920 video is
   about 220 MB) and about 4 times the render time. Use it for an archive or an upload that will be re-encoded by the
   platform; keep the normal render for quick shares. Film grain and fine paint texture are what make files big.
+- **Real video clips for a few shots, free**: `explainroo/colab/` has a Colab notebook that turns chosen pictures into
+  short clips (LTX-Video on a free GPU), and `scripts/colab-clips.mjs pack|unpack` moves pictures and clips to and from
+  it. See `explainroo/colab/README.md`. Not yet run on a real Colab GPU.
 - **Voices**: `explainroo voices` lists Kokoro's 54 voices; set one in `video.json`.
 - **Paid extras** (never run without checking the cost): `explainroo image` and
   `templates/story-shots/scripts/shot-images.mjs` make AI pictures through OpenRouter.

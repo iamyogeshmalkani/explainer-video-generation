@@ -213,6 +213,33 @@ export function keyColored(d, w, h) {
       const id = comp[i];
       if (sizes[id] < biggest * 0.02 || (id !== main && onEdge[id])) bg[i] = 1;
     }
+    // A pale floor-shadow band can hang right under the puppet, fused to it and too pale to join the growth above. A
+    // colored puppet (a flame, a person, bricks) is nothing like green, so in the lowest quarter of the figure anything
+    // still clearly green and touching the background can go. A PALE puppet (dough, sugar, snow) is skipped: its shaded
+    // underside is almost the same green, and eating it would ragged the bottom.
+    let n = 0; let pale = 0; let top = h; let bottom = -1;
+    for (let i = 0; i < w * h; i++) {
+      if (bg[i]) continue;
+      n++;
+      const y = Math.floor(i / w);
+      if (y < top) top = y;
+      if (y > bottom) bottom = y;
+      const hi = hiOf(i);
+      if (hi >= 170 && (hi - Math.min(d[i * 4], d[i * 4 + 1], d[i * 4 + 2])) / hi <= 0.15) pale++;
+    }
+    if (n && pale / n < 0.35) {
+      const floor = top + (bottom - top) * 0.75;
+      const loose = (i) => Math.floor(i / w) >= floor && hiOf(i) >= 30 && lead(i) >= 8 && greenness(i) >= gb * 0.4;
+      const stack2 = [];
+      for (let i = 0; i < w * h; i++) {
+        if (bg[i] || !loose(i)) continue;
+        if (neighbors(i).some((j) => j >= 0 && bg[j])) { bg[i] = 1; stack2.push(i); }
+      }
+      while (stack2.length) {
+        const i = stack2.pop();
+        for (const j of neighbors(i)) if (j >= 0 && !bg[j] && loose(j)) { bg[j] = 1; stack2.push(j); }
+      }
+    }
     // If the biggest piece still touches the edge, background leftovers have fused with the puppet: not usable.
     return { bg, ok: !onEdge[main] };
   };

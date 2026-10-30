@@ -1,0 +1,17 @@
+{
+  "extends": "midnight",
+  "name": "man-motivation",
+  "dark": true,
+  "bg": "#000000",
+  "ink": "#f6e6c4",
+  "muted": "#b79a63",
+  "accent": "yellow",
+  "colors": { "yellow": "#ffd24a" },
+  "fonts": {
+    "display": { "family": "Inter", "weight": 400 },
+    "body": { "family": "Inter", "weight": 400 }
+  },
+  "background": "plain",
+  "music": "calm",
+  "transition": "cut"
+}

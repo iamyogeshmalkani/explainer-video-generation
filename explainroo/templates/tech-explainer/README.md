@@ -10,7 +10,7 @@ The pictures are made by an image model (`shots.js`, see Pictures); everything e
 computer. The older outlined-box kit (`tag`, `phone`, `code`) is still there if a video needs a box,
 and needs no pictures.
 
-The sample is "An API call, step by step" (33 seconds), built only from pictures and links. It is a
+The sample is "API" (about 35 seconds): the name, what it means, a line of history, then a request step by step. It is built only from pictures and links. It is a
 working video: copy it, then replace the words, the pictures and the connections.
 
 The style was studied from a short "MVVM in a nutshell" video (720 x 1280, 39 seconds):
@@ -40,6 +40,7 @@ Or give an AI coding agent this prompt (it follows `TEMPLATE.md`):
 Make a 40 second tech explainer about [topic] with explainroo. Copy the tech-explainer
 template (scripts/new-video.sh tech-explainer <name>), read templates/tech-explainer/TEMPLATE.md
 and AGENTS.md, write the script and scenes, and check everything with still and sheet.
+Start the script with the topic name, then what it means, then its history, then how it works.
 ```
 
 ## The kit (`lib/kit.js`)

@@ -1,0 +1,18 @@
+{
+  "title": "What a man can build",
+  "theme": "look.json",
+  "size": "9:16",
+  "voice": "bm_george",
+  "pace": 0.95,
+  "music": { "style": "cinematic", "volume": 0.6 },
+  "sfx": "minimal",
+  "captions": false,
+  "camera": "still",
+  "motionBlur": false,
+  "cover": 1.5,
+  "loudness": -14,
+  "watermark": false,
+  "fonts": [
+    { "family": "Inter", "src": "assets/fonts/Inter-400-latin.woff2", "weight": 400 }
+  ]
+}
