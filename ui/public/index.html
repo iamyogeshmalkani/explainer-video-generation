@@ -14,6 +14,11 @@
   header { display: flex; align-items: baseline; gap: 14px; padding: 26px 32px 8px; max-width: 1240px; margin: 0 auto; }
   header h1 { margin: 0; font-size: 22px; letter-spacing: .2px; }
   header span { color: var(--muted); font-size: 14px; }
+  header .upd { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+  header .upd small { color: var(--muted); font-size: 13px; max-width: 460px; text-align: right; }
+  header .upd small.bad { color: #ff8a80; }
+  header .upd button { background: var(--panel-2); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 7px 12px; font: inherit; font-size: 13px; cursor: pointer; }
+  header .upd button:disabled { opacity: .5; cursor: default; }
   main { max-width: 1240px; margin: 0 auto; padding: 16px 32px 60px; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 24px; align-items: start; }
   @media (max-width: 960px) { main { grid-template-columns: 1fr; padding: 16px; } header { padding: 20px 16px 4px; } }
   .card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; }
@@ -132,7 +137,7 @@
 </style>
 </head>
 <body>
-<header><h1>Explainer Studio</h1><span>Give a topic, pick a template, get a narrated video.</span></header>
+<header><h1>Explainer Studio</h1><span>Give a topic, pick a template, get a narrated video.</span><div class="upd"><small id="updMsg"></small><button id="updBtn" type="button">Sync templates</button></div></header>
 
 <main>
   <form class="card" id="form" autocomplete="off">
@@ -291,6 +296,25 @@ const api = async (url, opts) => {
   return data;
 };
 const el = (tag, props = {}, ...kids) => { const n = Object.assign(document.createElement(tag), props); n.append(...kids); return n; };
+
+
+// Sync templates: pulls the newest templates (and tools) from the project's GitHub repository.
+function updMsg(text, bad) { const m = $('updMsg'); m.textContent = text; m.className = bad ? 'bad' : ''; }
+$('updBtn').addEventListener('click', async () => {
+  const b = $('updBtn'); b.disabled = true; updMsg('Syncing with GitHub...');
+  try {
+    const r = await api('/api/update', { method: 'POST' });
+    if (!r.updated) return updMsg('Templates are up to date.');
+    const news = r.templates.filter((t) => t.isNew).map((t) => t.id), changed = r.templates.filter((t) => !t.isNew).map((t) => t.id);
+    const parts = [];
+    if (news.length) parts.push(`new: ${news.join(', ')}`);
+    if (changed.length) parts.push(`updated: ${changed.join(', ')}`);
+    const extra = [r.needsSetup ? 'Run "sh setup.sh" once to install new tools.' : '', r.needsRestart ? 'Stop and start Studio to load its own changes.' : ''].filter(Boolean).join(' ');
+    updMsg(`Synced${parts.length ? ` (${parts.join('; ')})` : ''}. ${extra || 'Reloading...'}`);
+    if (!extra) setTimeout(() => location.reload(), 1200);
+  } catch (e) { updMsg(e.message, true); }
+  finally { b.disabled = false; }
+});
 
 async function init() {
   config = await api('/api/config');
