@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { prepare, withEngine } from './pipeline.js';
-import { frameEncoder, ffmpeg, normalizeLoudness } from './ffmpeg.js';
+import { frameEncoder, ffmpeg, normalizeLoudness, highQuality } from './ffmpeg.js';
 import { subtitleCues, toSrt, toVtt } from './subtitles.js';
 import { buildChapters, toChaptersText, toChapterMetadata } from './chapters.js';
 import { resolveTimes } from './qa.js';
@@ -44,7 +44,7 @@ export async function render(project, opts = {}) {
   const chapters = partial ? [] : buildChapters(timeline, project.script.title || project.config.title);
   const coverTime = partial ? null : resolveTimes(timeline, [project.config.cover === 'auto' ? `${timeline.scenes[0].id}@end` : project.config.cover])[0];
   const workers = Math.max(1, Math.min(opts.workers ?? Math.min(8, Math.max(1, Math.floor(os.cpus().length / 2))), to - from));
-  const quality = draft ? 0.82 : 0.93;
+  const quality = draft ? 0.82 : (highQuality() ? 0.99 : 0.93);
   // Final renders get motion blur. Drafts, GIFs and transparent videos skip it.
   const samples = draft || format === 'gif' || transparent || project.config.motionBlur === false ? 1 : 6;
   const segDir = path.join(project.paths.build, 'segments');
@@ -141,7 +141,7 @@ export async function render(project, opts = {}) {
     }
   } else {
     const audioCodec = format === 'webm' ? ['-c:a', 'libopus', '-b:a', '192k']
-      : format === 'mov' ? ['-c:a', 'pcm_s16le'] : ['-c:a', 'aac', '-b:a', '192k'];
+      : format === 'mov' ? ['-c:a', 'pcm_s16le'] : ['-c:a', 'aac', '-b:a', highQuality() ? '320k' : '192k'];
     const containerArgs = format === 'webm' ? [] : ['-movflags', '+faststart'];
     await ffmpeg(['-loglevel', 'error', '-f', 'concat', '-safe', '0', '-i', listFile, ...audioArgs, ...metadataArgs, '-map', '0:v', '-map', '1:a', '-c:v', 'copy', ...audioCodec, ...containerArgs, '-shortest', out]);
   }

@@ -27,6 +27,10 @@ folder for the general rules and `README.md` here for the steps and the kit.
    a soft g in names like Sigismund, so respell them (`{Sigismund|Sig is mund}`).
 6. **Paintings**: `node scripts/shot-images.mjs <project> --pollinations` (or `--local`). Open every one:
    remake any with garbled text, wrong period costume, extra limbs or modern objects.
+   **Depth (optional but worth it):** `uv run scripts/make-depth.py <project>` makes `assets/<name>.depth.png` for every
+   painting, which turns each push or pan into a real parallax. Then give every shot its mood in `shots.js`: `fog`,
+   `dust`, `ash`, `shake`, `depth` (see README, "Making still paintings feel like video"). Never leave every shot on the
+   same values: calm interiors low, battles high.
 7. **Look**: `sheet --every 1.5`. Check the hook is readable, captions sit clear of faces, each
    painting matches the sentence, and the picture changes every 2 to 3 seconds.
 8. **Render and verify**: `render`, `verify`. Report the files and say you could not hear the sound.

@@ -1,0 +1,19 @@
+{
+  "title": "The Somme: seven days of shells, and the wire still stood",
+  "theme": "look.json",
+  "size": "9:16",
+  "voice": "bm_george",
+  "pace": 1.2,
+  "music": { "style": "epic", "key": "F", "volume": 0.85 },
+  "sfx": "minimal",
+  "captions": false,
+  "camera": "still",
+  "motionBlur": false,
+  "cover": 1.4,
+  "loudness": -12,
+  "watermark": false,
+  "images": {
+    "model": "pollinations",
+    "style": "dark dramatic oil painting, thick visible brushstrokes, strong chiaroscuro, glowing golden-orange firelight and smoke against a deep blue-black night, 19th century romantic history painting, cinematic, highly detailed faces, vertical 9:16, no text, no letters, no signs, no logos"
+  }
+}

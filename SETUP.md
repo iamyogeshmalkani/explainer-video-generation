@@ -70,6 +70,10 @@ Apple Silicon and Intel Macs both work: `env.sh` picks the right ffprobe.
   listen to the result.
 - **Names the voice mispronounces**: respell them in the script, for example
   `{Waldseemüller|Vahlt zay mooler}` shows one spelling and says the other.
+- **High quality master**: `EXPLAINROO_QUALITY=high node bin/explainroo.js render videos/<name>` renders with
+  near-lossless frames and a slow, low-compression encode. About 4 times the file size (a 50 second 1080x1920 video is
+  about 220 MB) and about 4 times the render time. Use it for an archive or an upload that will be re-encoded by the
+  platform; keep the normal render for quick shares. Film grain and fine paint texture are what make files big.
 - **Voices**: `explainroo voices` lists Kokoro's 54 voices; set one in `video.json`.
 - **Paid extras** (never run without checking the cost): `explainroo image` and
   `templates/story-shots/scripts/shot-images.mjs` make AI pictures through OpenRouter.

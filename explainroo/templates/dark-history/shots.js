@@ -7,6 +7,11 @@
 // motion: push | pull | panLeft | panRight | rise | still   (pictures only)
 // embers: 0 to 1, how many drifting sparks and how much fire flicker (default 0.5; 0 for calm indoor shots)
 // hit:    how strong the thud on the cut is (default 1; 0 for none)
+// More ways to make a still painting feel like footage (all optional; the defaults already move the picture):
+// fog:    0 to 1, mist drifting through the frame (default 0.35)       dust: 0 to 1, floating motes that glint (0.25)
+// ash:    0 to 1, falling ash, for burnt or dead battlefields (0)       shake: 0 to 2, hand-held camera shake (0.6; 0 for a tripod)
+// depth:  0 to 2, how much the painting has depth when the camera moves (1; needs assets/<file>.depth.png for real layers)
+// ease:   'inOut' (default) | 'out' (fast start, slow end) | 'linear'   flash: 0 to 1, a bright flash on the cut (0.4 on hit >= 1.3)
 
 // Added to the end of every prompt so all the pictures share one look.
 // (Keep text and logos out: picture models get letters wrong.)
