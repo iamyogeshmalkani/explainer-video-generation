@@ -70,6 +70,14 @@ Keep it to one hook, one stat, one twist per video. Two twists is noise. The hoo
   within 180 px of the middle.
 - Emoji and labels: at most one idea per marker.
 
+## Cut-aways and props (see `lib/frames.js`)
+
+The strongest "What if" shorts do not stay on the map. Every 8 to 10 seconds they cut to one cartoon frame for one joke or
+one comparison (a balance scale for "bigger than Brazil", a border post for "bring your passport"), then fly back to the map.
+Use at most two cut-aways in a short, each tied to one sentence, always with an `out`. On the map, show an idea with a prop
+(flag pole, stamp, week cards, a swarm of crowns, NO! bubbles, a trophy with confetti) rather than a label. Put the title card
+and place names in `f.headline`, not in captions. For India, always use the official outline (README: "India: use the official map").
+
 ## Mistakes to avoid
 
 - Flags or fills left on after the narration moves on. Always `out`.
@@ -77,3 +85,11 @@ Keep it to one hook, one stat, one twist per video. Two twists is noise. The hoo
 - Wrong numbers. A stat with no source is cut.
 - Captions bigger than 70 px or inside the top third.
 - Two camera flights at once.
+
+## Hindi and other Indian words in the English voice
+
+Kokoro `am_michael` says most Indian names well as plain text (Kerala, Gujarat, Assam, Darjeeling, Nilgiris, tapri). Test before respelling:
+write the word in a throwaway script, run `voice`, and read `build/voice/story.json` -> `transcript` (what the speech check heard).
+Respellings with hyphens (`Keh-ruh-luh`, `Goo-ja-raat`, `Ah-sam`) made it worse; these helped: `{chai|chy}`, `{mandis|mundees}`,
+`{Brahmagupta|Brahma-goop-ta}`, Roman numerals spoken as numbers (`{XLVII|forty seven}`), `{UPI|U P I}`. Add a `[#marker]` every 3 to 5 seconds,
+because a beat with no marker inside it cannot be timed to the words.

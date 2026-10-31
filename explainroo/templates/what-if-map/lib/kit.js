@@ -8,6 +8,7 @@
 //   basemap(s); k.fill([...]); k.label(...); k.medallion(...);
 //   k.vignette(); k.title(...); k.year(...); k.captions();   // last: they sit on top
 import COUNTRIES from '../data/countries.js';
+import INDIA_STATES from '../data/india-states.js';
 import { drawFlag } from './flags.js';
 
 const TAU = Math.PI * 2;
@@ -26,18 +27,25 @@ const ALIAS = {
   'Dominican Republic': 'Dominican Rep.', 'Ivory Coast': "Côte d'Ivoire", Burma: 'Myanmar',
   Bosnia: 'Bosnia and Herz.', 'Equatorial Guinea': 'Eq. Guinea', Macedonia: 'North Macedonia', Congo: 'Dem. Rep. Congo',
 };
-const BY_NAME = new Map(COUNTRIES.map((c) => [c.name, c]));
+// Countries, then India's states and union territories by their own names ('Kerala', 'Uttar Pradesh').
+const BY_NAME = new Map([...COUNTRIES, ...INDIA_STATES].map((c) => [c.name, c]));
+// 'India' is always the official Survey of India outline (all states together), never the world-atlas one.
+BY_NAME.set('India', { name: 'India', rings: INDIA_STATES.flatMap((c) => c.rings) });
 
 // Handy groups (names as the data uses them).
 export const REGIONS = {
   southAmerica: ['Argentina', 'Bolivia', 'Brazil', 'Chile', 'Colombia', 'Ecuador', 'Guyana', 'Paraguay', 'Peru', 'Suriname', 'Uruguay', 'Venezuela'],
   northAmerica: ['Canada', 'United States of America', 'Mexico', 'Guatemala', 'Belize', 'Honduras', 'El Salvador', 'Nicaragua', 'Costa Rica', 'Panama', 'Cuba', 'Haiti', 'Dominican Rep.', 'Jamaica', 'Bahamas'],
   spanishAmerica: ['Mexico', 'Guatemala', 'Honduras', 'El Salvador', 'Nicaragua', 'Costa Rica', 'Panama', 'Cuba', 'Dominican Rep.', 'Colombia', 'Venezuela', 'Ecuador', 'Peru', 'Bolivia', 'Chile', 'Argentina', 'Paraguay', 'Uruguay'],
+  indiaStates: INDIA_STATES.map((c) => c.name),
+  india28: INDIA_STATES.map((c) => c.name).filter((n) => !['Jammu and Kashmir', 'Andaman and Nicobar', 'Lakshadweep', 'Delhi', 'Chandigarh', 'Puducherry', 'Dadra and Nagar Haveli', 'Daman and Diu'].includes(n)),
   europe: ['France', 'Germany', 'Italy', 'Spain', 'Portugal', 'Belgium', 'Netherlands', 'Switzerland', 'Austria', 'Poland', 'Czechia', 'Hungary', 'Romania', 'Bulgaria', 'Greece', 'Serbia', 'Denmark', 'Norway', 'Sweden', 'Finland', 'Ireland', 'United Kingdom'],
 };
 
 const ringCache = new Map();
-function geometry(name, mainland, within) {
+// Adds your own region by name from [lon, lat] points (a city, a district), so k.fill(name), f.swarm(name) and friends work on it.
+export function addRegion(name, pts) { BY_NAME.set(name, { name, rings: [pts.flatMap((p) => p)] }); ringCache.clear(); }
+export function geometry(name, mainland, within) {
   const key = `${name}|${mainland}|${within ? within.join(',') : ''}`;   // mainland: true (12 degrees around the biggest piece), a number of degrees, or false for every piece
   if (ringCache.has(key)) return ringCache.get(key);
   const c = BY_NAME.get(ALIAS[name] || name);
@@ -53,7 +61,7 @@ function geometry(name, mainland, within) {
     if (!rings.length) throw new Error(`map kit: nothing of "${name}" lies inside ${within.join(', ')}`);
     mainland = false;
   }
-  const radius = mainland === true ? 12 : mainland;
+  const radius = name === 'India' ? 0 : mainland === true ? 12 : mainland;   // India is every piece: the north-east and the islands are India too
   if (radius && rings.length > 1) {
     const info = rings.map((r) => {
       let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
@@ -75,7 +83,7 @@ function geometry(name, mainland, within) {
   return g;
 }
 
-function trace(ctx, rings) {
+export function trace(ctx, rings) {
   ctx.beginPath();
   for (const r of rings) {
     ctx.moveTo(X(r[0]), Y(r[1]));
@@ -142,7 +150,7 @@ export function basemap(s) {
   });
 }
 
-function shadowText(ctx, text, x, y, size, o = {}) {
+export function shadowText(ctx, text, x, y, size, o = {}) {
   ctx.save();
   ctx.font = `${o.weight ?? 800} ${size}px ${o.family ?? '"Plus Jakarta Sans", "Noto Sans Devanagari", sans-serif'}`;
   ctx.textAlign = o.align ?? 'center';

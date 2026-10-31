@@ -1,0 +1,25 @@
+{
+  "title": "What if all of India spoke one language?",
+  "theme": "look.json",
+  "size": "vertical",
+  "language": "en",
+  "voice": "am_michael",
+  "speed": 1.12,
+  "pace": 1.15,
+  "sentenceGap": 0.15,
+  "paragraphGap": 0.3,
+  "music": {
+    "style": "playful",
+    "volume": 0.12
+  },
+  "sfx": "minimal",
+  "captions": false,
+  "camera": "still",
+  "motionBlur": true,
+  "loudness": -16,
+  "lead": 0.2,
+  "hold": 0.4,
+  "end": 1.0,
+  "cover": 2.5,
+  "watermark": false
+}
