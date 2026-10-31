@@ -8,3 +8,6 @@ The full-size original (21600 x 10800, about 30 MB):
 https://eoimages.gsfc.nasa.gov/images/imagerecords/73000/73751/world.topo.bathy.200407.3x21600x10800.jpg
 Browsers decode a 21600 px picture slowly and use a lot of memory, so the
 template uses the 10800 px version.
+
+`data/india-states.js`: India's states and union territories from the Survey of India state map, as published by datameet/maps
+(https://github.com/datameet/maps, CC BY 4.0), simplified. Credit "Survey of India map via datameet" in the description.
