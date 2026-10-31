@@ -1,6 +1,6 @@
 # Explainer video generation: notes for Claude
 
-This repository is shared on GitHub. The publisher pushes new and updated templates and tools to `origin/main`.
+This repository is shared on GitHub. The publisher, and users who ask for it, push new and updated templates and tools to `origin/main`.
 Each user has their own clone, with their own videos and keys. The video engine and templates live in
 `explainroo/` (read `explainroo/AGENTS.md` before making a video); the Studio web app is in `ui/`.
 
@@ -41,7 +41,7 @@ order and stop to ask if a step says so.
    `git reset --hard`, `git checkout .`, `git restore .`, `git clean`, `git push --force`, deleting branches or
    stashes, `rm -rf` on `explainroo/videos/`, and anything that edits or prints `explainroo/.env` (it holds the
    user's keys; it is git-ignored and must stay untouched).
-   Do **not push** to the shared repository. Users only pull; the publisher owns `main`.
+   Pushing your own work (for example a new template) to `origin/main` is allowed when the user asks for it. Always sync first (steps 1 to 4), commit only the files that belong to the change, never `videos/` or other local output, and never force-push.
 
 6. **Finish the job.**
    - If `package.json`, `package-lock.json` or `setup.sh` changed, run `sh setup.sh` (it is safe to repeat).
