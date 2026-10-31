@@ -1,0 +1,18 @@
+{
+  "title": "Documentary Mini Founder Reel",
+  "theme": "look.json",
+  "size": "9:16",
+  "voice": "bm_george",
+  "pace": 1.1,
+  "music": false,
+  "sfx": false,
+  "captions": false,
+  "camera": "still",
+  "motionBlur": false,
+  "cover": 1.2,
+  "loudness": -14,
+  "watermark": false,
+  "fonts": [
+    { "family": "Inter", "src": "assets/fonts/Inter-latin.woff2", "weight": "100 900" }
+  ]
+}

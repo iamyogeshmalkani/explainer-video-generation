@@ -1,0 +1,16 @@
+{
+  "extends": "midnight",
+  "name": "documentary-founder-reel",
+  "bg": "#000000",
+  "ink": "#ffffff",
+  "muted": "#cfcfcf",
+  "accent": "red",
+  "colors": { "red": "#e10600" },
+  "fonts": {
+    "display": { "family": "Inter", "weight": 800 },
+    "body": { "family": "Inter", "weight": 600 }
+  },
+  "background": "plain",
+  "music": "calm",
+  "transition": "cut"
+}
