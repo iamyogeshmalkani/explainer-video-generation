@@ -1,0 +1,6 @@
+# What if India had 90% women?
+
+> Facts: India has about 140 crore people (UN World Population Prospects 2024). 10% of 140 crore is 14 crore, 90% is 126 crore. The 2024 Lok Sabha has about 74 women among 543 members, roughly 1 in 7 (Election Commission of India).
+
+## story {transition=cut hold=1.2}
+[loud]What if nine out of every ten Indians were women?[/loud] [#today] Today India has roughly equal numbers of men and women. Flip it to ninety percent, and only about fourteen crore men are left for one hundred twenty six crore women. [#jobs] Every job would need new hands. Truck drivers, soldiers, construction crews, auto drivers. Women already do a large share of India's farm work. Now they would run nearly every field, shop and factory. [#politics] Politics would change first. Today only about one in seven members of the Lok Sabha is a woman. With a ninety percent women electorate, the promises on the ballot would likely shift toward safety, health and childcare. [#homes] Homes would change too. Marriage, family roles, even the way cities are designed have been built around men's lives. All of it would need rewriting. [#end] A country run by the ninety percent would be a very different country. So what if nine out of every ten Indians were women?

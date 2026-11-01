@@ -1,0 +1,6 @@
+# What if every Indian had to vote, by law?
+
+> Facts: turnout in the 2024 general election was about 66 percent of registered voters (Election Commission of India), so more than 30 crore registered voters did not vote. Australia has compulsory voting with a small fine and turnout above 90 percent. India has had NOTA, none of the above, since 2013.
+
+## story {transition=cut hold=1.2}
+[loud]What if voting in India was not a choice, but the law?[/loud] [#p1] In the 2024 general election, about 66 out of every 100 registered voters turned out. That means more than 30 crore people stayed home. [#p2] Australia makes voting compulsory with a small fine, and turnout there is above 90%. [#p3] In India, parties could no longer win by getting their own supporters to the booth. They would have to speak to the ones who usually don't bother: young people, city dwellers, migrants. [#p4] But how would it work? Millions of migrant workers live far from where they are registered. A fine would hit the poorest hardest. [#p5] And there is a deeper question. Is staying home also a choice? India already has {NOTA|nota}, the option to vote for none of the above. [#end] Voting is a right. Making it a duty changes what democracy means. So what if every Indian had to vote, by law?

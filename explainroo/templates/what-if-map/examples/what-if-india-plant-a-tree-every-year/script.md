@@ -1,0 +1,6 @@
+# What if every Indian had to plant a tree every year?
+
+> Facts: forest and tree cover is about 25 percent of India's land (India State of Forest Report); the national goal is 33 percent (National Forest Policy 1988). 1.4 billion people means 1.4 billion saplings a year. Survival of planted saplings in tree drives is often poor without upkeep.
+
+## story {transition=cut hold=1.2}
+[loud]What if every Indian had to plant one tree every year, by law?[/loud] [#p1] That's 1.4 billion trees a year. Every single year. [#p2] Trees and forests cover about a quarter of India's land. The national goal is a third. The extra trees would add up to billions within a few years. [#p3] Cities would feel it. Shade lowers street temperatures, and trees help with dust and heat. Both are big problems in Indian summers. [#p4] But first you'd need 1.4 billion saplings, every year. Nurseries, seeds, water and land, on a scale India has never tried. And someone in a Mumbai flat has nowhere to plant. [#p5] The hardest part comes after planting. In many tree drives, a large share of saplings die within a year because no one waters them. [#end] Planting a tree is easy. Keeping it alive is the real work. So what if every Indian had to plant a tree every year?

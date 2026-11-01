@@ -1,0 +1,6 @@
+# What if every Indian city had Mumbai's population density?
+
+> Facts: Mumbai has roughly 21,000 people per square kilometre; Delhi about half that. About 52 crore Indians live in urban areas, just over a third of the country. 52 crore at 21,000 per square kilometre is about 25,000 square kilometres, about the size of Meghalaya (22,430 square kilometres, same order). Mumbai suburban trains carry over 7 million people a day.
+
+## story {transition=cut hold=1.2}
+[loud]What if every Indian city was as crowded as Mumbai?[/loud] [#p1] Mumbai packs roughly 21,000 people into every square kilometre. Delhi has about half that. Many other cities have far less. [#p2] About 52 crore Indians live in cities, just over a third of the country. [#p3] At Mumbai's density, all of them would fit into about 25,000 square kilometres. That's roughly the size of Meghalaya. [#p4] Think of what that frees up: land for farms and forests, shorter commutes, walkable streets, cheaper public transport. [#p5] Now think of the cost. Mumbai's local trains carry over seven million people a day, packed shoulder to shoulder. Housing is among the priciest in India, and millions live in slums. [#end] Crowding alone isn't the problem. Planning is. So what if every Indian city had Mumbai's population density?
