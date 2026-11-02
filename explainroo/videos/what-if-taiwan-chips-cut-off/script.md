@@ -1,6 +1,0 @@
-# What if Taiwan's chips were cut off?
-
-> Facts to check: Taiwan makes roughly 90 percent of the world's most advanced chips, most of them at TSMC (TSMC alone is well over half of global foundry revenue); the Taiwan Strait is about 130 km wide at its narrowest; India's first chip plants (Tata-PSMC at Dholera, Micron's assembly plant at Sanand) focus on older chips and assembly; analysts' cost estimates of a Taiwan crisis run to trillions of dollars (for example Bloomberg Economics). A what-if, not a prediction, and not a claim about any country's intentions.
-
-## story {transition=cut hold=1.5}
-[loud]One island makes most of the world's most advanced chips. What if it was cut off?[/loud] [#strait] The Taiwan Strait is about 130 kilometres wide at its narrowest, and it is one of the busiest sea lanes on Earth. [#chips] Taiwan makes roughly 90 percent of the world's most advanced chips, most of them at one company, {TSMC|T S M C}. [#phones] Phones, cars, servers and artificial intelligence all depend on them. [#blockade] A blockade or a conflict could stop shipments from the island. [#cost] Analysts put the cost of a Taiwan crisis in the trillions of dollars. [#india] India is building its first chip plants, but they start with older chips and assembly, not the most advanced ones. [#end] Can the world afford to depend on one island? Comment.

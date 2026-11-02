@@ -1,6 +1,0 @@
-# What if India and China stopped trading?
-
-> Facts to check: India-China trade was about 118 billion dollars in 2023-24, with India importing about 101 billion and exporting about 17 billion, a gap of about 85 billion dollars (Indian commerce ministry); India depends on China for a large share of pharmaceutical raw ingredients, often cited at around 70 percent; electronics, machinery, chemicals and solar equipment are major imports; India is a small share of China's exports (about 3 percent). A what-if, not a prediction. Keep the tone balanced: both sides lose.
-
-## story {transition=cut hold=1.5}
-[loud]India and China trade about 118 billion dollars a year. What if it all stopped?[/loud] [#deficit] India buys far more than it sells. The gap is roughly 85 billion dollars a year. [#goods] Phone parts, solar panels, machines and chemicals come in from China. [#pharma] Even India's medicine makers depend on China for a large share of their raw ingredients, often cited at around 70 percent. [#hit] A sudden stop would hit factories first, then prices. [#china] China would lose a big market too, but India is a small share of its exports. [#shift] Over time India could shift to Vietnam, Taiwan, Korea and its own plants, but that takes years. [#end] Should India cut its dependence on Chinese goods? Comment.

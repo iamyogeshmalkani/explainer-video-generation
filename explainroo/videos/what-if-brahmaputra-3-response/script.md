@@ -1,6 +1,0 @@
-# What if China blocked the Brahmaputra? Part 3: India's response
-
-> Facts to check before publishing: the Siang Upper Multipurpose Project (SUMP) in Upper Siang district, Arunachal Pradesh, is proposed by NHPC at about 11,000 to 11,200 megawatts with large storage; it is at the survey and pre-feasibility stage and local {Adi|Ah dee} communities have protested over submergence of villages and farmland. The dam position on the map is approximate. Check the latest status before you publish. India's official outline is used for Arunachal Pradesh.
-
-## story {transition=cut hold=1.5}
-[loud]India's answer to China's mega dam is another dam.[/loud] [#sump] The proposed Siang Upper Multipurpose Project in Arunachal Pradesh is planned at around [loud]11,200 megawatts[/loud]. [#store] It could store water and reduce flood risk. [#study] But it is still at the study stage, [#adi] and local {Adi|Ah dee} communities have protested. [#fear] They fear villages and farmland could be submerged. [#data] India also needs a data-sharing agreement with China, [#plan] and a plan for floods and droughts downstream. [#villain] A water story with no easy villain: [#pull] security, development and people's homes all pull in different directions. [#end] Build the dam or protect the valley? Comment your side.
