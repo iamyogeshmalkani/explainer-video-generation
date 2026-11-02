@@ -1,0 +1,6 @@
+# What if India stopped the Indus?
+
+> Facts to check before publishing: the 1960 Indus Waters Treaty gave India the eastern rivers (Ravi, Beas, Sutlej) and Pakistan the western rivers (Indus, Jhelum, Chenab); India placed it in abeyance on 23 April 2025 after the Pahalgam attack; the Indus system supplies most of Pakistan's irrigated farmland; the treaty dispute is before the Court of Arbitration. The hook says rivers 'flow through India first' because the Indus itself rises in Tibet. River lines are stylised. Schematic map; no country borders are drawn.
+
+## story {transition=cut hold=1.5}
+[loud]Pakistan's farms depend on rivers that flow through India first. What if India closed the tap?[/loud] [#treaty] The 1960 Indus Waters Treaty gave India three eastern rivers [#west] and Pakistan three western ones. [#abeyance] In 2025, India placed the treaty in abeyance after the {Pahalgam|Pah-hal-gam} attack. [#farms] Pakistan relies on the Indus system for most of its irrigated farmland, [#hit] so any disruption would hit crops, power and cities. [#reality] Reality check: India has limited storage on the western rivers. [#delay] It can delay or regulate flows, but it can't stop them quickly. [#years] Building that storage takes years, [#law] and the treaty fight now sits in international law. [#end] Is water a weapon or a shared lifeline? Comment.
