@@ -1,0 +1,16 @@
+{
+  "extends": "midnight",
+  "name": "myth-facts",
+  "bg": "#0a0604",
+  "ink": "#fff4e0",
+  "muted": "#c9a56a",
+  "accent": "orange",
+  "colors": { "orange": "#ffb627" },
+  "fonts": {
+    "display": { "family": "Plus Jakarta Sans", "weight": 800 },
+    "body": { "family": "Plus Jakarta Sans", "weight": 800 }
+  },
+  "background": "plain",
+  "music": "cinematic",
+  "transition": "cut"
+}

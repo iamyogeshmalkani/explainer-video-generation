@@ -1,0 +1,21 @@
+{
+  "title": "How Hanuman got his name",
+  "theme": "look.json",
+  "size": "9:16",
+  "voice": "am_onyx",
+  "speed": 0.8,
+  "pace": 1,
+  "music": { "style": "cinematic", "volume": 0.7, "duck": -6 },
+  "sfx": "minimal",
+  "captions": false,
+  "camera": "still",
+  "motionBlur": false,
+  "cover": 1.4,
+  "loudness": -14,
+  "emphasisDb": 5,
+  "watermark": false,
+  "images": {
+    "model": "pollinations",
+    "style": "Indian temple mural and classical oil painting, rich saffron, deep crimson and gold on near-black shadows, glowing lamp light, drifting incense smoke, ornate detail, dramatic mythic atmosphere, cinematic, highly detailed, vertical 9:16, no text, no letters, no writing, no logos"
+  }
+}
