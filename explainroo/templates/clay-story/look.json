@@ -1,0 +1,16 @@
+{
+  "extends": "paper",
+  "name": "clay-story",
+  "bg": "#000000",
+  "ink": "#fff3d6",
+  "muted": "#d8c3a0",
+  "accent": "orange",
+  "colors": { "orange": "#ff9a2e", "yellow": "#ffd84a", "red": "#e5533d" },
+  "fonts": {
+    "display": { "family": "Kalam", "weight": 700 },
+    "body": { "family": "Plus Jakarta Sans", "weight": 600 }
+  },
+  "background": "plain",
+  "music": "inspiring",
+  "transition": "cut"
+}

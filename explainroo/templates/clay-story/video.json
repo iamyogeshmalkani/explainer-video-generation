@@ -1,0 +1,23 @@
+{
+  "title": "The Lantern Light",
+  "theme": "look.json",
+  "size": "9:16",
+  "voice": "af_heart",
+  "music": {
+    "style": "warm",
+    "volume": 0.3
+  },
+  "sfx": false,
+  "captions": false,
+  "camera": "still",
+  "motionBlur": false,
+  "cover": 1.2,
+  "lead": 0.3,
+  "hold": 1.2,
+  "end": 1.0,
+  "loudness": -14,
+  "watermark": false,
+  "images": {
+    "model": "perchance"
+  }
+}
